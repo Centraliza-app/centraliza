@@ -1,4 +1,4 @@
-package com.api.produtos.model;
+package com.centraliza.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;

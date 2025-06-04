@@ -1,7 +1,8 @@
-package com.api.produtos;
+package com.centraliza.config;
 
-import com.api.produtos.model.Usuario;
-import com.api.produtos.repository.UsuarioRepository;
+import com.centraliza.model.Usuario;
+import com.centraliza.repository.UsuarioRepository;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

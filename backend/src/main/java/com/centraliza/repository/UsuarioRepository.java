@@ -1,6 +1,6 @@
-package com.api.produtos.repository;
+package com.centraliza.repository;
 
-import com.api.produtos.model.Usuario;
+import com.centraliza.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
