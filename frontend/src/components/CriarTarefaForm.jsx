@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { criarTarefa } from '../services/TarefaService';
+import { criarTarefa } from '../services/apiService';
 
 const CriarTarefaForm = ({ onTarefaCriada }) => {
   const [tarefa, setTarefa] = useState({

@@ -1,12 +1,20 @@
 package com.centraliza.config;
 
+import com.centraliza.config.security.SecurityFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -16,23 +24,30 @@ import java.util.List;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            // 1. Configura o CORS usando o bean 'corsConfigurationSource'
-            .cors(withDefaults())
-            // 2. Desabilita o CSRF (comum para APIs stateless)
-            .csrf(AbstractHttpConfigurer::disable)
-            // 3. Define as regras de autorização
-            .authorizeHttpRequests(auth -> auth
-                .anyRequest().authenticated() // Todas as requisições exigem autenticação
-            )
-            // 4. Habilita a autenticação HTTP Basic
-            .httpBasic(withDefaults());
+    @Autowired
+    private SecurityFilter securityFilter;
 
-        return http.build();
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .cors(withDefaults()) // Adicionado para ativar o bean de CORS na cadeia de segurança
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        // Necessário para a injeção no AuthController
+        return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
@@ -40,23 +55,16 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // Bean que define a configuração do CORS de forma centralizada
+    // Bean de CORS (opcional, se não estiver em outro lugar)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Define as origens permitidas (seu frontend React)
         configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:3001"));
-        // Define os métodos HTTP permitidos
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        // Permite todos os cabeçalhos
         configuration.setAllowedHeaders(List.of("*"));
-        // Permite o envio de credenciais (cookies, etc.)
         configuration.setAllowCredentials(true);
-        
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // Aplica a configuração a todas as rotas da sua API
         source.registerCorsConfiguration("/**", configuration);
-        
         return source;
     }
 }
