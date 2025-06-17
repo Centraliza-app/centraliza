@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
-@ToString(exclude = "subtarefas")
+@ToString(exclude = {"subtarefas", "usuario"}) // Evita loops de serialização
 public class Tarefa {
 
     @Id
@@ -38,6 +38,10 @@ public class Tarefa {
 
     @Column(name = "status", nullable = false)
     private String status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
 
     @OneToMany(mappedBy = "tarefa", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Subtarefa> subtarefas;
