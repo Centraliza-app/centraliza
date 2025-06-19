@@ -7,6 +7,7 @@ import com.centraliza.repository.SubtarefaRepository;
 import com.centraliza.repository.TarefaRepository;
 import com.centraliza.repository.UsuarioRepository;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/tarefas/{tarefaId}/subtarefas")
 @Tag(name = "Subtarefas", description = "Gerenciamento de Subtarefas")
+@SecurityRequirement(name = "bearerAuth")
 public class SubtarefaController {
 
     @Autowired

@@ -19,7 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/tarefas")
 @Tag(name = "Tarefas", description = "Gerenciamento de Tarefas do Usuário")
-@SecurityRequirement(name = "basicAuth") // Adicionado para documentação do Swagger
+@SecurityRequirement(name = "bearerAuth") // Adicionado para documentação do Swagger
 public class TarefaController {
 
     @Autowired
