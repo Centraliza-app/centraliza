@@ -26,13 +26,13 @@ const CriarTarefaForm = ({ onTarefaCriada }) => {
   };
 
   return (
-    <form className="auth-form" onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit}>
       <input name="nome" placeholder="Nome" value={tarefa.nome} onChange={handleChange} required />
       <input name="descricao" placeholder="Descrição" value={tarefa.descricao} onChange={handleChange} />
       <input type="date" name="dataInicio" value={tarefa.dataInicio} onChange={handleChange} required />
       <input type="date" name="dataFim" value={tarefa.dataFim} onChange={handleChange} required />
       <input name="status" placeholder="Status" value={tarefa.status} onChange={handleChange} required />
-      <button type="submit" className="cta-button">Criar Tarefa</button>
+      <button type="submit">Criar Tarefa</button>
     </form>
   );
 };

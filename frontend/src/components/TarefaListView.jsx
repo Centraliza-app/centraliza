@@ -6,9 +6,9 @@ const TarefaListView = ({ tarefas }) => {
   }
 
   return (
-    <ul className="tarefa-lista">
+    <ul>
       {tarefas.map((tarefa) => (
-        <li key={tarefa.id} className="tarefa-item">
+        <li key={tarefa.id}>
           <strong>{tarefa.nome}</strong> – {tarefa.descricao}<br />
           Início: {tarefa.dataInicio} | Fim: {tarefa.dataFim} | Status: {tarefa.status}
         </li>
