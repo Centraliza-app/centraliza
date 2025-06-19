@@ -4,9 +4,27 @@ import React, { useEffect, useState } from 'react';
 import LoginForm from './components/LoginForm';
 import TarefaListView from './components/TarefaListView';
 import CriarTarefaForm from './components/CriarTarefaForm';
+import {
+    BrowserRouter as Router,
+    Routes,
+    Route,
+    Link,
+    useNavigate,
+    Outlet,
+    Navigate
+} from "react-router-dom";
+
+import NavBar from './components/NavBar/NavBar';
+import Home from './pages/Home/Home';
+import NotFound from './pages/NotFound/NotFound';
+import Login from './pages/Login/Login';
+import Register from './pages/Register/Register';
+import Tarefas from './pages/Tarefas/Tarefas';
 
 // Importa as funções da nossa API
 import { login, logout, listarTarefas } from './services/apiService';
+
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
   // 1. O estado de autenticação agora é baseado na existência de um token no localStorage
@@ -48,27 +66,31 @@ const App = () => {
     carregarDados();
   }, [isAuthenticated]); // Roda sempre que o estado 'isAuthenticated' mudar
 
-  // ---- RENDERIZAÇÃO CONDICIONAL ----
+  // Rota para definição de páginas LOGADAS!
+  // Se não estiver logado, redireciona para a página de login
+  // Se estiver logado, renderiza o componente passado
 
-  // 5. Se não estiver autenticado, mostra o formulário de login
-  if (!isAuthenticated) {
-    return (
-      <div className="App">
-        <LoginForm onLogin={handleLogin} />
-      </div>
-    );
-  }
-
-  // 6. Se estiver autenticado, mostra a aplicação principal
   return (
-    <div className="App">
-      <div style={{ position: 'absolute', top: 10, right: 10 }}>
-        <button onClick={handleLogout}>Sair</button>
-      </div>
-      <h1>Centraliza - Tarefas</h1>
-      <CriarTarefaForm onTarefaCriada={() => listarTarefas().then(res => setTarefas(res.data))} />
-      <TarefaListView tarefas={tarefas} />
-    </div>
+    <Router>
+      <NavBar />
+      {/*Implementing Routes for respective Path */}
+      <Routes>
+        <Route
+          path="/tarefas"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <Tarefas />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/tarefas-naologado" element={<Tarefas />} />
+        {/* Caso não encontre página alguma */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
   );
 };
 
