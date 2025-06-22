@@ -1,4 +1,3 @@
-// src/services/apiService.js
 import axios from 'axios';
 
 // Cria uma instância base do Axios
@@ -53,14 +52,18 @@ export const criarTarefa = (dados) => api.post('/tarefas', dados);
 /**
  * Funções para interagir com as subtarefas.
  */
-export const criarSubtarefa = (dados) => api.post('/subtarefas', dados);
-// Outros métodos à testar:
-// export const listarSubtarefasPorTarefa = (tarefaId) => api.get(`/subtarefas/tarefa/${tarefaId}`);
+
+// Função correta para criar subtarefa associada a uma tarefa (corpo NÃO leva tarefaId, só no path)
+export const criarSubtarefa = (tarefaId, dados) => 
+  api.post(`/tarefas/${tarefaId}/subtarefas`, dados);
+
+// Função para listar as subtarefas de uma tarefa específica
+export const listarSubtarefasPorTarefa = (tarefaId) => api.get(`/tarefas/${tarefaId}/subtarefas`);
+
+
+// Outros métodos à testar ou implementar depois:
 // export const atualizarSubtarefa = (id, dados) => api.put(`/subtarefas/${id}`, dados);
 // export const deletarSubtarefa = (id) => api.delete(`/subtarefas/${id}`);
-
-export const listarSubtarefasPorTarefa = (tarefaId) => api.get(`/subtarefas/tarefa/${tarefaId}`);
-
 
 // Exporta a instância do api caso precise em outros lugares
 export default api;
