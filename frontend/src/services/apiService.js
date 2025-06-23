@@ -63,8 +63,8 @@ export const listarSubtarefasPorTarefa = (tarefaId) => api.get(`/tarefas/${taref
 
 
 // Outros métodos à testar ou implementar depois:
-// export const atualizarSubtarefa = (id, dados) => api.put(`/subtarefas/${id}`, dados);
-// export const deletarSubtarefa = (id) => api.delete(`/subtarefas/${id}`);
+export const atualizarSubtarefa = (tarefaId, subId, dados) => api.put(`/tarefas/${tarefaId}/subtarefas/${subId}`, dados);
+export const deletarSubtarefa = (tarefaId, subId) => api.delete(`/tarefas/${tarefaId}/subtarefas/${subId}`);
 
 // Exporta a instância do api caso precise em outros lugares
 export default api;

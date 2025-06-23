@@ -8,7 +8,6 @@ const TarefaListView = ({ tarefas, onTarefaDeletada, onTarefaAtualizada }) => {
   const [showSubFor, setShowSubFor] = useState(null);       // Controla expansão da lista
   const [subtarefas, setSubtarefas] = useState([]);
   const [loadingSub, setLoadingSub] = useState(false);
-  const [showModal, setShowModal] = useState(null);         // ID da tarefa que vai abrir modal
   const [tarefaParaEditar, setTarefaParaEditar] = useState(null);
 
   useEffect(() => {
@@ -20,15 +19,6 @@ const TarefaListView = ({ tarefas, onTarefaDeletada, onTarefaAtualizada }) => {
         .finally(() => setLoadingSub(false));
     }
   }, [showSubFor]);
-
-  const handleSubtarefaCriada = async () => {
-    try {
-      const res = await listarSubtarefasPorTarefa(showSubFor);
-      setSubtarefas(res.data);
-    } catch {
-      setSubtarefas([]);
-    }
-  };
 
   const handleDeletarTarefa = async (tarefaId) => {
     const confirmado = window.confirm("Tem certeza que deseja excluir esta tarefa? Esta ação não pode ser desfeita.");
@@ -65,19 +55,14 @@ const TarefaListView = ({ tarefas, onTarefaDeletada, onTarefaAtualizada }) => {
                 Início: {tarefa.dataInicio} | Fim: {tarefa.dataFim} | Status: {tarefa.status}
               </div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: '10px' }}>
-                <Link to={`/kanban/${tarefa.id}`} className="cta-button small">Ver Kanban</Link>
+                <Link to={`/kanban/${tarefa.id}`} className="cta-button small">Kanban</Link>
                 <button
                   className="cta-button small"
                   onClick={() => setShowSubFor(showSubFor === tarefa.id ? null : tarefa.id)}
                 >
-                  {showSubFor === tarefa.id ? 'Ocultar Subs' : 'Ver Subs'}
+                  {showSubFor === tarefa.id ? 'Ocultar subtarefas' : 'Mostrar subtarefas'}
                 </button>
-                <button
-                  className="cta-button small"
-                  onClick={() => setShowModal(tarefa.id)}
-                >
-                  Criar Sub
-                </button>
+                {/* ALTERAÇÃO: O botão "Criar Sub" foi removido daqui. */}
                 <button
                   className="cta-button small"
                   style={{ backgroundColor: '#1E88E5' }} // Cor azul para edição
@@ -116,23 +101,6 @@ const TarefaListView = ({ tarefas, onTarefaDeletada, onTarefaAtualizada }) => {
                 </>
               )}
             </div>
-
-            {/* Modal de criar subtarefa */}
-            {showModal === tarefa.id && (
-              <div className="modal-overlay" onClick={() => setShowModal(null)}>
-                <div className="modal" onClick={(e) => e.stopPropagation()}>
-                  <h2>Criar Subtarefa</h2>
-                  <CriarSubtarefaForm
-                    tarefaId={tarefa.id}
-                    onSubtarefaCriada={handleSubtarefaCriada}
-                    onClose={() => setShowModal(null)}
-                  />
-                  <button className="cta-button close-btn" onClick={() => setShowModal(null)}>
-                    Fechar
-                  </button>
-                </div>
-              </div>
-            )}
           </li>
         ))}
       </ul>

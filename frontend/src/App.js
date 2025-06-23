@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
-
-import LoginForm from './components/LoginForm';
-import TarefaListView from './components/TarefaListView';
-import CriarTarefaForm from './components/CriarTarefaForm';
-import Pomodoro from './components/Pomodoro';
-import KanbanPage from './components/KanbanPage';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import NavBar from './components/NavBar/NavBar';
 import Home from './pages/Home/Home';
@@ -15,17 +9,11 @@ import Register from './pages/Register/Register';
 import Tarefas from './pages/Tarefas/Tarefas';
 import Calendario from './pages/Calendario/Calendario';
 import Dashboard from './pages/Dashboard/Dashboard';
+import Pomodoro from './components/Pomodoro';
+import KanbanPage from './components/KanbanPage';
 import { login, logout, listarTarefas } from './services/apiService';
 import ProtectedRoute from "./components/ProtectedRoute";
 import SideLayout from './components/SideLayout/SideLayout';
-
-const TarefasPage = ({ tarefas, onCriarTarefa }) => (
-  <div>
-    <h1>Centraliza - Tarefas</h1>
-    <CriarTarefaForm onTarefaCriada={onCriarTarefa} />
-    <TarefaListView tarefas={tarefas} />
-  </div>
-);
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('authToken'));
@@ -63,7 +51,7 @@ const App = () => {
 
   return (
     <Router>
-        <Routes>
+      <Routes>
         <Route
           path="/tarefas"
           element={
