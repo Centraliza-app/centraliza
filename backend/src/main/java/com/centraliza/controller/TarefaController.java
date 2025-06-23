@@ -4,15 +4,17 @@ import com.centraliza.dto.TarefaRequestDTO;
 import com.centraliza.dto.TarefaResponseDTO;
 import com.centraliza.model.Tarefa;
 import com.centraliza.model.Usuario;
+// ALTERADO: Importação do enum Status.
+import com.centraliza.model.enums.Status;
 import com.centraliza.repository.TarefaRepository;
 import com.centraliza.repository.UsuarioRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid; 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity; 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -62,11 +64,11 @@ public class TarefaController {
         novaTarefa.setDescricao(tarefaDTO.descricao());
         novaTarefa.setDataInicio(tarefaDTO.dataInicio());
         novaTarefa.setDataFim(tarefaDTO.dataFim());
-        novaTarefa.setStatus(tarefaDTO.status());
+        novaTarefa.setStatus(Status.fromString(tarefaDTO.status()));
         novaTarefa.setUsuario(usuario);
 
         Tarefa tarefaSalva = tarefaRepository.save(novaTarefa);
-        
+
         // Retorna o DTO de resposta com status 201 CREATED
         return ResponseEntity.status(HttpStatus.CREATED).body(new TarefaResponseDTO(tarefaSalva));
     }
@@ -90,7 +92,7 @@ public class TarefaController {
 
         tarefaExistente.setNome(tarefaAtualizadaDTO.nome());
         tarefaExistente.setDescricao(tarefaAtualizadaDTO.descricao());
-        tarefaExistente.setStatus(tarefaAtualizadaDTO.status());
+        tarefaExistente.setStatus(Status.fromString(tarefaAtualizadaDTO.status()));
         tarefaExistente.setDataInicio(tarefaAtualizadaDTO.dataInicio());
         tarefaExistente.setDataFim(tarefaAtualizadaDTO.dataFim());
 
@@ -107,7 +109,7 @@ public class TarefaController {
         if (!tarefaRepository.existsByIdAndUsuario(id, usuario)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tarefa não encontrada ou não pertence a este usuário.");
         }
-        
+
         tarefaRepository.deleteById(id);
     }
 }

@@ -17,7 +17,7 @@ const EditarTarefaForm = ({ tarefa, onTarefaAtualizada, onClose }) => {
         descricao: tarefa.descricao || '',
         dataInicio: tarefa.dataInicio ? tarefa.dataInicio.split('T')[0] : '',
         dataFim: tarefa.dataFim ? tarefa.dataFim.split('T')[0] : '',
-        status: tarefa.status || ''
+        status: tarefa.status || 'A FAZER' // Garante um valor padrão
       });
     }
   }, [tarefa]);
@@ -46,7 +46,13 @@ const EditarTarefaForm = ({ tarefa, onTarefaAtualizada, onClose }) => {
       <input name="descricao" placeholder="Descrição" value={formData.descricao} onChange={handleChange} />
       <input type="date" name="dataInicio" value={formData.dataInicio} onChange={handleChange} required />
       <input type="date" name="dataFim" value={formData.dataFim} onChange={handleChange} required />
-      <input name="status" placeholder="Status" value={formData.status} onChange={handleChange} required />
+      
+      {/* ALTERADO: O campo de texto 'status' foi substituído por um menu de seleção. */}
+      <select name="status" value={formData.status} onChange={handleChange} required>
+        <option value="A FAZER">A FAZER</option>
+        <option value="EM EXECUÇÃO">EM EXECUÇÃO</option>
+        <option value="CONCLUÍDO">CONCLUÍDO</option>
+      </select>
       
       <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
         <button type="submit" className="cta-button" style={{ flex: 1 }}>

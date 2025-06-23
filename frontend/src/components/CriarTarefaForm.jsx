@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { criarTarefa } from '../services/apiService';
 
 const CriarTarefaForm = ({ onTarefaCriada }) => {
+  // ALTERADO: O status inicial agora é 'A FAZER' por padrão.
   const [tarefa, setTarefa] = useState({
     nome: '',
     descricao: '',
     dataInicio: '',
     dataFim: '',
-    status: ''
+    status: 'A FAZER' // Valor inicial padrão
   });
 
   const handleChange = (e) => {
@@ -19,7 +20,7 @@ const CriarTarefaForm = ({ onTarefaCriada }) => {
     try {
       await criarTarefa(tarefa);
       onTarefaCriada();
-      setTarefa({ nome: '', descricao: '', dataInicio: '', dataFim: '', status: '' });
+      setTarefa({ nome: '', descricao: '', dataInicio: '', dataFim: '', status: 'A FAZER' });
     } catch (err) {
       console.error('Erro ao criar tarefa:', err);
     }
@@ -31,7 +32,13 @@ const CriarTarefaForm = ({ onTarefaCriada }) => {
       <input name="descricao" placeholder="Descrição" value={tarefa.descricao} onChange={handleChange} />
       <input type="date" name="dataInicio" value={tarefa.dataInicio} onChange={handleChange} required />
       <input type="date" name="dataFim" value={tarefa.dataFim} onChange={handleChange} required />
-      <input name="status" placeholder="Status" value={tarefa.status} onChange={handleChange} required />
+
+      <select name="status" value={tarefa.status} onChange={handleChange} required>
+        <option value="A FAZER">A FAZER</option>
+        <option value="EM EXECUÇÃO">EM EXECUÇÃO</option>
+        <option value="CONCLUÍDO">CONCLUÍDO</option>
+      </select>
+      
       <button type="submit" className="cta-button">Criar Tarefa</button>
     </form>
   );
