@@ -7,7 +7,15 @@ import CriarTarefaForm from './components/CriarTarefaForm';
 import Pomodoro from './components/Pomodoro';
 import KanbanPage from './components/KanbanPage';
 
+import NavBar from './components/NavBar/NavBar';
+import Home from './pages/Home/Home';
+import NotFound from './pages/NotFound/NotFound';
+import Login from './pages/Login/Login';
+import Register from './pages/Register/Register';
+import Tarefas from './pages/Tarefas/Tarefas';
 import { login, logout, listarTarefas } from './services/apiService';
+import ProtectedRoute from "./components/ProtectedRoute";
+import SideLayout from './components/SideLayout/SideLayout';
 
 const TarefasPage = ({ tarefas, onCriarTarefa }) => (
   <div>
@@ -51,40 +59,37 @@ const App = () => {
     carregarDados();
   }, [isAuthenticated]);
 
-  if (!isAuthenticated) {
-    return (
-      <div className="App">
-        <LoginForm onLogin={handleLogin} />
-      </div>
-    );
-  }
-
   return (
     <Router>
-      <div className="App">
-        <div style={{ position: 'absolute', top: 10, right: 10 }}>
-          <button onClick={handleLogout}>Sair</button>
-        </div>
-        {/* Menu de navegação */}
-        <nav style={{ marginBottom: 20 }}>
-          <Link to="/tarefas" style={{ marginRight: 10 }}>Tarefas</Link>
-          <Link to="/pomodoro" style={{ marginRight: 10 }}>Pomodoro</Link>
-        </nav>
         <Routes>
-          <Route
-            path="/tarefas"
-            element={
-              <TarefasPage
-                tarefas={tarefas}
-                onCriarTarefa={() => listarTarefas().then(res => setTarefas(res.data))}
-              />
-            }
-          />
-          <Route path="/pomodoro" element={<Pomodoro />} />
-          <Route path="/kanban/:tarefaId" element={<KanbanPage />} />
-          <Route path="*" element={<Navigate to="/tarefas" />} />
-        </Routes>
-      </div>
+        <Route
+          path="/tarefas"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <SideLayout isAuthenticated={isAuthenticated} onLogout={handleLogout}>
+                <Tarefas />
+              </SideLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/pomodoro"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <SideLayout isAuthenticated={isAuthenticated} onLogout={handleLogout}>
+                <Pomodoro />
+              </SideLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/kanban/:tarefaId" element={<KanbanPage />} />
+
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login onLogin={handleLogin}/>} />
+        <Route path="/register" element={<Register />} />
+        {/* Caso não encontre página alguma */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
     </Router>
   );
 };

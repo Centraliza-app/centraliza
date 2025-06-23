@@ -30,9 +30,7 @@ const CriarSubtarefaForm = ({ tarefaId, onSubtarefaCriada, onClose }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ border: '1px solid #ddd', padding: 10, marginTop: 8 }}>
-      <div>
-        {/* Campo para o nome da subtarefa - deve ser subNome */}
+    <form onSubmit={handleSubmit} className="auth-form" style={{ padding: 0 }}>
         <input
           name="subNome"
           placeholder="Nome da subtarefa"
@@ -40,16 +38,12 @@ const CriarSubtarefaForm = ({ tarefaId, onSubtarefaCriada, onClose }) => {
           onChange={handleChange}
           required
         />
-      </div>
-      <div>
         <input
           name="descricao"
           placeholder="Descrição"
           value={subtarefa.descricao}
           onChange={handleChange}
         />
-      </div>
-      <div>
         <input
           name="status"
           placeholder="Status"
@@ -57,9 +51,8 @@ const CriarSubtarefaForm = ({ tarefaId, onSubtarefaCriada, onClose }) => {
           onChange={handleChange}
           required
         />
-      </div>
-      <button type="submit">Criar Subtarefa</button>
-      <button type="button" onClick={onClose} style={{ marginLeft: 10 }}>Cancelar</button>
+      
+      <button type="submit" className="cta-button">Criar Subtarefa</button>
     </form>
   );
 };

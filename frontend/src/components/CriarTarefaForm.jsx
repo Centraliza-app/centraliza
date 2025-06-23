@@ -1,40 +1,48 @@
 import React, { useState } from 'react';
-import { criarTarefa } from '../services/apiService';
+import api from '../services/apiService';
 
-const CriarTarefaForm = ({ onTarefaCriada }) => {
-  const [tarefa, setTarefa] = useState({
-    nome: '',
-    descricao: '',
-    dataInicio: '',
-    dataFim: '',
-    status: ''
-  });
+const CriarSubtarefaForm = ({ tarefaId, onSubtarefaCriada, onClose }) => {
+  const [subtarefa, setSubtarefa] = useState({ subNome: '', descricao: '', status: '' });
 
-  const handleChange = (e) => {
-    setTarefa({ ...tarefa, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) => setSubtarefa({ ...subtarefa, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await criarTarefa(tarefa);
-      onTarefaCriada();
-      setTarefa({ nome: '', descricao: '', dataInicio: '', dataFim: '', status: '' });
+      await api.post(`/tarefas/${tarefaId}/subtarefas`, subtarefa);
+      onSubtarefaCriada();
+      setSubtarefa({ subNome: '', descricao: '', status: '' });
+      onClose();
     } catch (err) {
-      console.error('Erro ao criar tarefa:', err);
+      console.error('Erro ao criar subtarefa:', err);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input name="nome" placeholder="Nome" value={tarefa.nome} onChange={handleChange} required />
-      <input name="descricao" placeholder="Descrição" value={tarefa.descricao} onChange={handleChange} />
-      <input type="date" name="dataInicio" value={tarefa.dataInicio} onChange={handleChange} required />
-      <input type="date" name="dataFim" value={tarefa.dataFim} onChange={handleChange} required />
-      <input name="status" placeholder="Status" value={tarefa.status} onChange={handleChange} required />
-      <button type="submit">Criar Tarefa</button>
+    <form className="auth-form" onSubmit={handleSubmit} style={{ padding: 0 }}>
+      <input
+        name="subNome"
+        placeholder="Nome da subtarefa"
+        value={subtarefa.subNome}
+        onChange={handleChange}
+        required
+      />
+      <input
+        name="descricao"
+        placeholder="Descrição"
+        value={subtarefa.descricao}
+        onChange={handleChange}
+      />
+      <input
+        name="status"
+        placeholder="Status"
+        value={subtarefa.status}
+        onChange={handleChange}
+        required
+      />
+      <button type="submit" className="cta-button">Criar Subtarefa</button>
     </form>
   );
 };
 
-export default CriarTarefaForm;
+export default CriarSubtarefaForm;
