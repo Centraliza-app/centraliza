@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import CriarSubtarefaForm from './CriarSubtarefaForm';
-import { listarSubtarefasPorTarefa } from '../services/apiService';
+import EditarTarefaForm from './EditarTarefaForm'; 
+import { listarSubtarefasPorTarefa, deletarTarefa } from '../services/apiService';
 
-const TarefaListView = ({ tarefas }) => {
+const TarefaListView = ({ tarefas, onTarefaDeletada, onTarefaAtualizada }) => {
   const [showSubFor, setShowSubFor] = useState(null);       // Controla expansão da lista
   const [subtarefas, setSubtarefas] = useState([]);
   const [loadingSub, setLoadingSub] = useState(false);
   const [showModal, setShowModal] = useState(null);         // ID da tarefa que vai abrir modal
+  const [tarefaParaEditar, setTarefaParaEditar] = useState(null);
 
   useEffect(() => {
     if (showSubFor) {
@@ -28,29 +30,67 @@ const TarefaListView = ({ tarefas }) => {
     }
   };
 
+  const handleDeletarTarefa = async (tarefaId) => {
+    const confirmado = window.confirm("Tem certeza que deseja excluir esta tarefa? Esta ação não pode ser desfeita.");
+    
+    if (confirmado) {
+      try {
+        await deletarTarefa(tarefaId);
+        alert('Tarefa excluída com sucesso!');
+        if (onTarefaDeletada) {
+          onTarefaDeletada();
+        }
+      } catch (error) {
+        console.error('Erro ao excluir tarefa:', error);
+        alert('Não foi possível excluir a tarefa.');
+      }
+    }
+  };
+
+  const handleTarefaAtualizada = () => {
+    setTarefaParaEditar(null); // Fecha o modal
+    if (onTarefaAtualizada) {
+      onTarefaAtualizada(); // Recarrega a lista de tarefas
+    }
+  };
+
   return (
     <>
       <ul className="tarefa-lista">
         {tarefas.map((tarefa) => (
           <li key={tarefa.id} className="tarefa-item">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
               <div>
                 <strong>{tarefa.nome}</strong> – {tarefa.descricao}<br />
                 Início: {tarefa.dataInicio} | Fim: {tarefa.dataFim} | Status: {tarefa.status}
               </div>
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: '10px' }}>
                 <Link to={`/kanban/${tarefa.id}`} className="cta-button small">Ver Kanban</Link>
                 <button
                   className="cta-button small"
                   onClick={() => setShowSubFor(showSubFor === tarefa.id ? null : tarefa.id)}
                 >
-                  {showSubFor === tarefa.id ? 'Ocultar Subtarefas' : 'Ver Subtarefas'}
+                  {showSubFor === tarefa.id ? 'Ocultar Subs' : 'Ver Subs'}
                 </button>
                 <button
                   className="cta-button small"
                   onClick={() => setShowModal(tarefa.id)}
                 >
-                  Criar Subtarefa
+                  Criar Sub
+                </button>
+                <button
+                  className="cta-button small"
+                  style={{ backgroundColor: '#1E88E5' }} // Cor azul para edição
+                  onClick={() => setTarefaParaEditar(tarefa)} // Define a tarefa a ser editada, abrindo o modal
+                >
+                  Editar
+                </button>
+                <button
+                  className="cta-button small"
+                  style={{ backgroundColor: '#c62828' }} // Cor vermelha para indicar perigo
+                  onClick={() => handleDeletarTarefa(tarefa.id)}
+                >
+                  Excluir
                 </button>
               </div>
             </div>
@@ -96,6 +136,20 @@ const TarefaListView = ({ tarefas }) => {
           </li>
         ))}
       </ul>
+      
+      {/* Modal de editar tarefa */}
+      {tarefaParaEditar && (
+        <div className="modal-overlay" onClick={() => setTarefaParaEditar(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h2>Editar Tarefa</h2>
+            <EditarTarefaForm
+              tarefa={tarefaParaEditar}
+              onTarefaAtualizada={handleTarefaAtualizada}
+              onClose={() => setTarefaParaEditar(null)}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 };

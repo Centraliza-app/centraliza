@@ -37,7 +37,8 @@ const Tarefas = () => {
         </div>
 
         {/* Exibe a lista de tarefas */}
-        <TarefaListView tarefas={tarefas} />
+        <TarefaListView tarefas={tarefas} onTarefaDeletada={carregarTarefas}
+        onTarefaAtualizada={carregarTarefas} />
 
         {/* Modal para criação de nova tarefa */}
         {mostrarModal && (
