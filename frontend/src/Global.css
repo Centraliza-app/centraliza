@@ -508,3 +508,120 @@ header { /* Se você tiver um header principal fora do sidebar */
   from { transform: translateY(50px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
+/* Ajustes para o componente react-big-calendar */
+.rbc-calendar {
+  border: none;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 0;
+}
+
+.rbc-toolbar {
+  background: #ffffff;
+  padding: 8px;
+  border-bottom: 1px solid #e0e0e0;
+  border-radius: 8px 8px 0 0;
+}
+
+.rbc-toolbar .rbc-btn-group button {
+  background: #2962ff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  margin-right: 4px;
+  cursor: pointer;
+}
+.rbc-toolbar .rbc-btn-group button:hover {
+  background: #0039cb;
+}
+
+.rbc-event {
+  background: #2962ff;
+  border: none;
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+}
+
+.rbc-event:hover {
+  background: #0039cb;
+}
+
+/* Cartões numéricos da visão geral */
+.tarefas-container section {
+  margin-bottom: 32px;
+}
+
+.tarefas-container h2 {
+  font-size: 1.5rem;
+  color: #1a237e;
+  margin-bottom: 16px;
+}
+
+.tarefa-item {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: box-shadow 0.2s ease;
+}
+
+.tarefa-item:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* Responsividade para os cards numéricos */
+@media (max-width: 768px) {
+  .tarefas-container section div[style*='display: flex'] {
+    flex-direction: column;
+  }
+  .tarefas-container section div[style*='gap: 16px'] {
+    gap: 12px;
+  }
+}
+
+/* Gráfico */
+.tarefas-container canvas {
+  width: 100% !important;
+  height: 280px !important;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+/* Listagem das últimas tarefas */
+.tarefa-lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tarefa-lista .tarefa-item {
+  margin-bottom: 12px;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  border-left: 4px solid #2962ff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.tarefa-lista .tarefa-item strong {
+  font-size: 1.1rem;
+  color: #1a237e;
+}
+
+.tarefa-lista .tarefa-item p {
+  margin: 8px 0;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.tarefa-lista .tarefa-item span {
+  font-size: 0.8rem;
+  background: #e0e0e0;
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: #333;
+}

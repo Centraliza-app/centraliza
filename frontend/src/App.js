@@ -13,6 +13,8 @@ import NotFound from './pages/NotFound/NotFound';
 import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
 import Tarefas from './pages/Tarefas/Tarefas';
+import Calendario from './pages/Calendario/Calendario';
+import Dashboard from './pages/Dashboard/Dashboard';
 import { login, logout, listarTarefas } from './services/apiService';
 import ProtectedRoute from "./components/ProtectedRoute";
 import SideLayout from './components/SideLayout/SideLayout';
@@ -82,8 +84,36 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-        <Route path="/kanban/:tarefaId" element={<KanbanPage />} />
-
+        <Route
+          path="/kanban/:tarefaId"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <SideLayout isAuthenticated={isAuthenticated} onLogout={handleLogout}>
+                <KanbanPage />
+              </SideLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/calendario"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <SideLayout isAuthenticated={isAuthenticated} onLogout={handleLogout}>
+                <Calendario />
+              </SideLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <SideLayout isAuthenticated={isAuthenticated} onLogout={handleLogout}>
+                <Dashboard />
+              </SideLayout>
+            </ProtectedRoute>
+          }
+        />
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login onLogin={handleLogin}/>} />
         <Route path="/register" element={<Register />} />

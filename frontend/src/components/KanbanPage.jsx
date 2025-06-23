@@ -1,54 +1,83 @@
 // src/components/KanbanPage.jsx
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { listarSubtarefasPorTarefa } from '../services/apiService';
 
-const statusList = ["A FAZER", "EM EXECUÇÃO", "CONCLUÍDO"];
+const statusList = ['A FAZER', 'EM EXECUÇÃO', 'CONCLUÍDO'];
 
 const KanbanPage = () => {
   const { tarefaId } = useParams();
+  const navigate = useNavigate();
+
   const [subtarefas, setSubtarefas] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Busca as subtarefas ao carregar a página
+  const carregarSubtarefas = async () => {
+    try {
+      const res = await listarSubtarefasPorTarefa(tarefaId);
+      setSubtarefas(res.data);
+    } catch (error) {
+      console.error('Erro ao carregar subtarefas:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    listarSubtarefasPorTarefa(tarefaId)
-      .then(res => setSubtarefas(res.data))
-      .finally(() => setLoading(false));
+    carregarSubtarefas();
   }, [tarefaId]);
 
-  // Organiza as subtarefas em colunas por status
   const getSubtarefasByStatus = (status) =>
-    subtarefas.filter(sub => (sub.status || '').toUpperCase() === status);
+    subtarefas.filter(
+      (sub) => (sub.status || '').toUpperCase() === status
+    );
 
   return (
-    <div style={{ padding: 24 }}>
-      <h2>Kanban de Subtarefas</h2>
-      <Link to="/tarefas" style={{ marginBottom: 16, display: 'inline-block' }}>← Voltar para Tarefas</Link>
+    <div className="tarefas-container">
+      <div className="tarefas-header">
+        <h1 className="tarefas-title">Kanban da Tarefa</h1>
+        <button className="cta-button small" onClick={() => navigate('/tarefas')}>
+          ← Voltar para Tarefas
+        </button>
+      </div>
+
       {loading ? (
-        <p>Carregando...</p>
+        <p>Carregando subtarefas...</p>
       ) : (
-        <div style={{ display: 'flex', gap: 16 }}>
-          {statusList.map(status => (
-            <div key={status} style={{
-              flex: 1, background: '#f4f4f4', borderRadius: 8, padding: 12, minHeight: 300
-            }}>
-              <h3 style={{ textAlign: 'center' }}>{status}</h3>
-              {getSubtarefasByStatus(status).length === 0 && (
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+          {statusList.map((status) => (
+            <div
+              key={status}
+              style={{
+                flex: 1,
+                background: '#f4f4f4',
+                borderRadius: 8,
+                padding: 12,
+                minHeight: 300,
+                minWidth: 250,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              }}
+            >
+              <h3 style={{ textAlign: 'center', marginBottom: 12 }}>{status}</h3>
+              {getSubtarefasByStatus(status).length === 0 ? (
                 <p style={{ color: '#aaa', textAlign: 'center' }}>Sem subtarefas</p>
+              ) : (
+                getSubtarefasByStatus(status).map((sub) => (
+                  <div
+                    key={sub.id}
+                    style={{
+                      background: 'white',
+                      padding: 10,
+                      borderRadius: 6,
+                      boxShadow: '0 2px 8px #0001',
+                      marginBottom: 8,
+                    }}
+                  >
+                    <strong>{sub.subNome}</strong>
+                    <div>{sub.descricao}</div>
+                  </div>
+                ))
               )}
-              {getSubtarefasByStatus(status).map(sub => (
-                <div key={sub.id} style={{
-                  background: 'white',
-                  margin: '8px 0',
-                  borderRadius: 6,
-                  padding: 10,
-                  boxShadow: '0 2px 8px #0001'
-                }}>
-                  <strong>{sub.nome}</strong>
-                  <div>{sub.descricao}</div>
-                </div>
-              ))}
             </div>
           ))}
         </div>

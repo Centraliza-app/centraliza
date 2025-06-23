@@ -17,8 +17,8 @@ const Sidebar = ({ isAuthenticated, onLogout }) => {
     { name: 'Tarefas', path: '/tarefas', icon: ListTodo, requiresAuth: true },
     { name: 'Pomodoro', path: '/pomodoro', icon: Timer, requiresAuth: true },
     { name: 'Calendário', path: '/calendario', icon: CalendarDays, requiresAuth: true },
-    { name: 'Kanban', path: '/kanban', icon: Kanban, requiresAuth: true },
-    { name: 'Dashboard Pessoal', path: '/dashboard', icon: LayoutDashboard, requiresAuth: true },
+    // { name: 'Kanban', path: '/kanban', icon: Kanban, requiresAuth: true }, //DESCOMENTAR CASO MUDE OS PLANOS
+    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, requiresAuth: true },
   ];
 
   return (
