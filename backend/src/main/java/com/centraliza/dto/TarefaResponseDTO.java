@@ -12,7 +12,7 @@ public record TarefaResponseDTO(
     Date dataInicio,
     Date dataFim,
     String status,
-    List<SubtarefaResponseDTO> subtarefas // Incluindo subtarefas na resposta
+    List<SubtarefaResponseDTO> subtarefas
 ) {
     // Construtor que converte a entidade Tarefa para este DTO
     public TarefaResponseDTO(Tarefa tarefa) {
