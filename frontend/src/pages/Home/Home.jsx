@@ -12,10 +12,9 @@ const Home = () => {
             <NavBar />
             <main class="hero">
                 <h1>Centraliza</h1>
-                <h2>Simplifique a gestão centralizada</h2>
+                <h2>Assuma o controle total dos seus projetos.</h2>
                 <p>
-                Uma ferramenta poderosa que ajuda você a organizar e centralizar as
-                operações da sua empresa de forma eficiente.
+                Do planejamento de tarefas com Kanban ao foco profundo com o timer Pomodoro, o Centraliza une as ferramentas que você precisa para transformar esforço em resultado, sem esforço.
                 </p>
                 <a href="/register" class="cta-button">Cadastre-se</a>
             </main>
