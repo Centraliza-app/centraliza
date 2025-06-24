@@ -300,11 +300,31 @@ header { /* Se você tiver um header principal fora do sidebar */
   margin: 20px 0;
 }
 
-.auth-form input {
+.auth-form input, select {
   padding: 12px;
   font-size: 1rem;
   border: 1px solid #ccc;
   border-radius: 6px;
+  width: 100%;
+  background-color: #ffffff;
+}
+
+.auth-form select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23333333' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1em;
+  padding-right: 2.5rem;
+}
+
+.auth-form input:focus,
+.auth-form select:focus {
+  outline: none;
+  border-color: #2962ff; /* cor do .cta-button */
+  box-shadow: 0 0 0 2px rgba(41, 98, 255, 0.25);
 }
 
 .social-login {
