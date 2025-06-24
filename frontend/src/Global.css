@@ -31,6 +31,10 @@ body {
   .main-content {
     margin-left: 0;
   }
+  .dashboard-cards {
+    flex-direction: column;
+    gap: 12px;
+  }
 }
 
 /* --- Estilos do Componente Sidebar (integrados aqui ou em um arquivo separado como SideBar-style.css) --- */
@@ -372,6 +376,11 @@ header { /* Se você tiver um header principal fora do sidebar */
   border-radius: 8px;
   margin-bottom: 12px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: box-shadow 0.2s ease;
+}
+
+.tarefa-item:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
 /* Modal */
@@ -603,14 +612,6 @@ header { /* Se você tiver um header principal fora do sidebar */
   }
 }
 
-/* Gráfico */
-.tarefas-container canvas {
-  width: 100% !important;
-  height: 280px !important;
-  border-radius: 8px;
-  background: #fafafa;
-}
-
 /* Listagem das últimas tarefas */
 .tarefa-lista {
   list-style: none;
@@ -644,4 +645,58 @@ header { /* Se você tiver um header principal fora do sidebar */
   padding: 2px 8px;
   border-radius: 4px;
   color: #333;
+}
+
+/* --- Estilos da Página Dashboard --- */
+.dashboard-section {
+  margin-bottom: 32px;
+}
+
+.dashboard-section h2 {
+  font-size: 1.5rem;
+  color: #1a237e;
+  margin-bottom: 16px;
+}
+
+.dashboard-cards {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+/* A classe .dashboard-card é usada em conjunto com .tarefa-item para herdar estilos base */
+.dashboard-card {
+  flex: 1;
+  text-align: center;
+  min-width: 200px;
+  background-color: white; /* Garante fundo branco para os cards */
+}
+
+.dashboard-card-metric {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 8px 0;
+  color: #1f1f1f;
+}
+
+.dashboard-chart-container {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  height: 320px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.dashboard-task-list .tarefa-item {
+  border-left: 4px solid #2962ff;
+  background-color: white;
+}
+
+.dashboard-task-status {
+  background: #e0e0e0;
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: #333;
+  font-size: 0.8rem;
 }

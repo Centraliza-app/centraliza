@@ -1,70 +1,51 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Home as HomeIcon, ListTodo, Timer, CalendarDays, Kanban, LayoutDashboard, LogOut, Menu } from 'lucide-react'; // Ícones para o sidebar
-import './SideBar-style.css'; // Importando o CSS para o sidebar
+import { ListTodo, Timer, CalendarDays, LayoutDashboard, LogOut, Menu, HomeIcon } from 'lucide-react';
+import './SideBar-style.css'; 
 
-// Componente Sidebar
 const Sidebar = ({ isAuthenticated, onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+
   const handleLogoutClick = () => {
     onLogout();
+    navigate('/'); // Redireciona para a página inicial após o logout
   };
 
-  // Itens de navegação da barra lateral
   const navItems = [
-    { name: 'Home', path: '/', icon: HomeIcon, requiresAuth: false },
+    { name: 'Home', path: '/', icon: HomeIcon, requiresAuth: true },
     { name: 'Tarefas', path: '/tarefas', icon: ListTodo, requiresAuth: true },
     { name: 'Pomodoro', path: '/pomodoro', icon: Timer, requiresAuth: true },
     { name: 'Calendário', path: '/calendario', icon: CalendarDays, requiresAuth: true },
-    // { name: 'Kanban', path: '/kanban', icon: Kanban, requiresAuth: true }, //DESCOMENTAR CASO MUDE OS PLANOS
-    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, requiresAuth: true },
   ];
 
   return (
     <>
       {/* Botão de abrir/fechar sidebar para mobile */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="sidebar-toggle-button" // Usando classe CSS
-      >
-        <Menu size={24} />
-      </button>
-
-      {/* Overlay para fechar sidebar no mobile quando aberto */}
-      {isOpen && (
-        <div
-          className="sidebar-overlay" // Usando classe CSS
-          onClick={() => setIsOpen(false)}
-        ></div>
-      )}
-
-      {/* Sidebar principal */}
       <aside
-        className={`sidebar-container ${isOpen ? 'is-open' : ''}`} // Usando classes CSS e condicional
+        className={`sidebar-container ${isOpen ? 'is-open' : ''}`}
       >
-        <div className="sidebar-header"> {/* Usando classe CSS */}
-          <Link to="/" className="sidebar-logo"> {/* Usando classe CSS */}
+        <div className="sidebar-header">
+          <Link to="/" className="sidebar-logo">
             Centraliza
           </Link>
-          {/* Botão de fechar para mobile */}
           <button
             onClick={() => setIsOpen(false)}
-            className="sidebar-close-button" // Usando classe CSS
+            className="sidebar-close-button"
           >
             &times;
           </button>
         </div>
-        <nav className="flex-grow"> {/* flex-grow do Tailwind permanece para layout */}
-          <ul className="sidebar-nav-list"> {/* Usando classe CSS */}
+        <nav className="flex-grow">
+          <ul className="sidebar-nav-list">
             {navItems.map((item) => {
               if (!item.requiresAuth || isAuthenticated) {
                 return (
-                  <li key={item.name} className="sidebar-nav-item"> {/* Usando classe CSS */}
+                  <li key={item.name} className="sidebar-nav-item">
                     <Link
                       to={item.path}
                       onClick={() => setIsOpen(false)}
-                      className="sidebar-nav-link" // Usando classe CSS
+                      className="sidebar-nav-link"
                     >
                       <item.icon size={20} />
                       <span>{item.name}</span>
@@ -76,16 +57,15 @@ const Sidebar = ({ isAuthenticated, onLogout }) => {
             })}
           </ul>
         </nav>
-        <div className="sidebar-footer"> {/* Usando classe CSS */}
+        <div className="sidebar-footer">
         <button
-            onClick={handleLogoutClick}
-            className="sidebar-logout-button" // Usando classe CSS
+            onClick={handleLogoutClick} // Esta função agora redireciona
+            className="sidebar-logout-button"
         >
             <LogOut size={20} />
             <span>Sair</span>
         </button>
         </div>
-
       </aside>
     </>
   );

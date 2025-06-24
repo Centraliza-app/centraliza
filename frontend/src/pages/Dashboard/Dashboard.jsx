@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { listarTarefas, listarSubtarefasPorTarefa } from '../../services/apiService';
 import { Bar } from 'react-chartjs-2';
@@ -29,32 +28,24 @@ const Dashboard = () => {
 
   const carregarDadosDashboard = async () => {
     try {
-      // 1. Busca todas as tarefas principais
       const resTarefas = await listarTarefas();
       const tarefasList = resTarefas.data;
       setTarefas(tarefasList);
 
-      // 2. Cria uma lista de promises para buscar as subtarefas de cada tarefa
       const promises = tarefasList.map(tarefa => 
         listarSubtarefasPorTarefa(tarefa.id)
       );
       
-      // 3. Executa todas as promises em paralelo
       const resultadosSubtarefas = await Promise.all(promises);
-      
-      // 4. Junta todas as subtarefas em um único array
       const todasSubtarefas = resultadosSubtarefas.flatMap(res => res.data);
 
-      // 5. Calcula as métricas para as TAREFAS
       const tarefasPendentes = tarefasList.filter(t => t.status === 'A FAZER').length;
       const tarefasConcluidas = tarefasList.filter(t => t.status === 'CONCLUÍDO').length;
 
-      // 6. Calcula as métricas para as SUBTAREFAS
       const subtarefasPendentes = todasSubtarefas.filter(s => s.status === 'A FAZER').length;
       const subtarefasEmExecucao = todasSubtarefas.filter(s => s.status === 'EM EXECUÇÃO').length;
       const subtarefasConcluidas = todasSubtarefas.filter(s => s.status === 'CONCLUÍDO').length;
 
-      // 7. Atualiza o estado com todos os dados calculados
       setDashboardData({
         numTarefasPendentes: tarefasPendentes,
         numTarefasConcluidas: tarefasConcluidas,
@@ -64,7 +55,6 @@ const Dashboard = () => {
           datasets: [
             {
               label: 'Subtarefas',
-              // Usa os dados das subtarefas para o gráfico
               data: [subtarefasPendentes, subtarefasEmExecucao, subtarefasConcluidas],
               backgroundColor: ['#64B5F6', '#42A5F5', '#2962FF'],
             },
@@ -86,7 +76,7 @@ const Dashboard = () => {
   return (
     <main className="tarefas-container">
       <div className="tarefas-header">
-        <h1 className="tarefas-title">Dashboard</h1>
+        <h1 className="tarefas-title">Home</h1>
         <button className="cta-button small" onClick={() => navigate('/tarefas')}>
           Ver Tarefas
         </button>
@@ -96,43 +86,39 @@ const Dashboard = () => {
         <p>Carregando...</p>
       ) : (
         <>
-          <section style={{ marginBottom: 24 }}>
+          <section className="dashboard-section">
             <h2>Visão Geral</h2>
-            <div style={{ display: 'flex', gap: 16, marginTop: 16, flexWrap: 'wrap' }}>
-              {/* Card de Tarefas Pendentes */}
-              <div className="tarefa-item" style={{ flex: 1, textAlign: 'center', minWidth: '200px' }}>
+            <div className="dashboard-cards">
+              <div className="tarefa-item dashboard-card">
                 <h3>Tarefas Pendentes</h3>
-                <p style={{ fontSize: '2rem', fontWeight: 600 }}>{dashboardData.numTarefasPendentes}</p>
+                <p className="dashboard-card-metric">{dashboardData.numTarefasPendentes}</p>
               </div>
-              {/* Card de Tarefas Concluídas */}
-              <div className="tarefa-item" style={{ flex: 1, textAlign: 'center', minWidth: '200px' }}>
+              <div className="tarefa-item dashboard-card">
                 <h3>Tarefas Concluídas</h3>
-                <p style={{ fontSize: '2rem', fontWeight: 600 }}>{dashboardData.numTarefasConcluidas}</p>
+                <p className="dashboard-card-metric">{dashboardData.numTarefasConcluidas}</p>
               </div>
-              {/* Card de Subtarefas Concluídas - AGORA CORRETO */}
-              <div className="tarefa-item" style={{ flex: 1, textAlign: 'center', minWidth: '200px' }}>
+              <div className="tarefa-item dashboard-card">
                 <h3>Subtarefas Concluídas</h3>
-                <p style={{ fontSize: '2rem', fontWeight: 600 }}>{dashboardData.numSubtarefasConcluidas}</p>
+                <p className="dashboard-card-metric">{dashboardData.numSubtarefasConcluidas}</p>
               </div>
             </div>
           </section>
 
-          <section style={{ marginBottom: 24 }}>
+          <section className="dashboard-section">
             <h2>Resumo de Subtarefas</h2>
-            <div style={{ background: 'white', padding: 16, borderRadius: 8, height: '250px' }}>
-              {/* Gráfico agora usa os dados corretos das subtarefas */}
+            <div className="dashboard-chart-container">
               <Bar data={dashboardData.chartData} options={{ responsive: true, maintainAspectRatio: false }} />
             </div>
           </section>
 
-          <section>
+          <section className="dashboard-section">
             <h2>Tarefas Recentes</h2>
-            <ul className="tarefa-lista">
+            <ul className="tarefa-lista dashboard-task-list">
               {tarefas.slice(0, 5).map((t) => (
-                <li key={t.id} className="tarefa-item" style={{ padding: 16 }}>
+                <li key={t.id} className="tarefa-item">
                   <strong>{t.nome}</strong>
                   <p>{t.descricao}</p>
-                  <span style={{ background: '#e0e0e0', padding: '2px 8px', borderRadius: 4 }}>{t.status}</span>
+                  <span className="dashboard-task-status">{t.status}</span>
                 </li>
               ))}
             </ul>

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-import NavBar from './components/NavBar/NavBar';
 import Home from './pages/Home/Home';
 import NotFound from './pages/NotFound/NotFound';
 import Login from './pages/Login/Login';
@@ -52,6 +51,19 @@ const App = () => {
   return (
     <Router>
       <Routes>
+        {/* Rota principal: Dashboard para autenticados, Home para não autenticados */}
+        <Route
+          path="/"
+          element={
+            isAuthenticated ? (
+              <SideLayout isAuthenticated={isAuthenticated} onLogout={handleLogout}>
+                <Dashboard />
+              </SideLayout>
+            ) : (
+              <Home />
+            )
+          }
+        />
         <Route
           path="/tarefas"
           element={
@@ -92,20 +104,10 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <SideLayout isAuthenticated={isAuthenticated} onLogout={handleLogout}>
-                <Dashboard />
-              </SideLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/" element={<Home />} />
+        {/* A rota /dashboard foi removida pois agora é a rota principal "/" */}
+        
         <Route path="/login" element={<Login onLogin={handleLogin}/>} />
         <Route path="/register" element={<Register />} />
-        {/* Caso não encontre página alguma */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
