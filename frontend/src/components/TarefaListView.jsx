@@ -53,6 +53,11 @@ const TarefaListView = ({ tarefas, onTarefaDeletada, onTarefaAtualizada }) => {
               <div>
                 <strong>{tarefa.nome}</strong> – {tarefa.descricao}<br />
                 Início: {tarefa.dataInicio} | Fim: {tarefa.dataFim} | Status: {tarefa.status}
+                
+                <div className="task-tags-container">
+                  {tarefa.urgente && <span className="task-tag urgent">Urgente</span>}
+                  {tarefa.importante && <span className="task-tag important">Importante</span>}
+                </div>
               </div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: '10px' }}>
                 <Link to={`/kanban/${tarefa.id}`} className="cta-button small">Kanban</Link>
@@ -62,7 +67,6 @@ const TarefaListView = ({ tarefas, onTarefaDeletada, onTarefaAtualizada }) => {
                 >
                   {showSubFor === tarefa.id ? 'Ocultar subtarefas' : 'Mostrar subtarefas'}
                 </button>
-                {/* ALTERAÇÃO: O botão "Criar Sub" foi removido daqui. */}
                 <button
                   className="cta-button small"
                   style={{ backgroundColor: '#1E88E5' }} // Cor azul para edição

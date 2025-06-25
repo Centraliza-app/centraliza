@@ -4,7 +4,6 @@ import com.centraliza.dto.TarefaRequestDTO;
 import com.centraliza.dto.TarefaResponseDTO;
 import com.centraliza.model.Tarefa;
 import com.centraliza.model.Usuario;
-// ALTERADO: Importação do enum Status.
 import com.centraliza.model.enums.Status;
 import com.centraliza.repository.TarefaRepository;
 import com.centraliza.repository.UsuarioRepository;
@@ -21,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -65,6 +65,8 @@ public class TarefaController {
         novaTarefa.setDataInicio(tarefaDTO.dataInicio());
         novaTarefa.setDataFim(tarefaDTO.dataFim());
         novaTarefa.setStatus(Status.fromString(tarefaDTO.status()));
+        novaTarefa.setUrgente(Optional.ofNullable(tarefaDTO.urgente()).orElse(false));
+        novaTarefa.setImportante(Optional.ofNullable(tarefaDTO.importante()).orElse(false));
         novaTarefa.setUsuario(usuario);
 
         Tarefa tarefaSalva = tarefaRepository.save(novaTarefa);
@@ -95,6 +97,9 @@ public class TarefaController {
         tarefaExistente.setStatus(Status.fromString(tarefaAtualizadaDTO.status()));
         tarefaExistente.setDataInicio(tarefaAtualizadaDTO.dataInicio());
         tarefaExistente.setDataFim(tarefaAtualizadaDTO.dataFim());
+        tarefaExistente.setUrgente(Optional.ofNullable(tarefaAtualizadaDTO.urgente()).orElse(false));
+        tarefaExistente.setImportante(Optional.ofNullable(tarefaAtualizadaDTO.importante()).orElse(false));
+
 
         Tarefa tarefaSalva = tarefaRepository.save(tarefaExistente);
         return new TarefaResponseDTO(tarefaSalva);

@@ -2,17 +2,19 @@ import React, { useState } from 'react';
 import { criarTarefa } from '../services/apiService';
 
 const CriarTarefaForm = ({ onTarefaCriada }) => {
-  // ALTERADO: O status inicial agora é 'A FAZER' por padrão.
   const [tarefa, setTarefa] = useState({
     nome: '',
     descricao: '',
     dataInicio: '',
     dataFim: '',
-    status: 'A FAZER' // Valor inicial padrão
+    status: 'A FAZER', // Valor inicial padrão
+    urgente: false,
+    importante: false,
   });
 
   const handleChange = (e) => {
-    setTarefa({ ...tarefa, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+    setTarefa({ ...tarefa, [name]: type === 'checkbox' ? checked : value });
   };
 
   const handleSubmit = async (e) => {
@@ -20,7 +22,7 @@ const CriarTarefaForm = ({ onTarefaCriada }) => {
     try {
       await criarTarefa(tarefa);
       onTarefaCriada();
-      setTarefa({ nome: '', descricao: '', dataInicio: '', dataFim: '', status: 'A FAZER' });
+      setTarefa({ nome: '', descricao: '', dataInicio: '', dataFim: '', status: 'A FAZER', urgente: false, importante: false });
     } catch (err) {
       console.error('Erro ao criar tarefa:', err);
     }
@@ -38,6 +40,27 @@ const CriarTarefaForm = ({ onTarefaCriada }) => {
         <option value="EM EXECUÇÃO">EM EXECUÇÃO</option>
         <option value="CONCLUÍDO">CONCLUÍDO</option>
       </select>
+      
+      <div style={{ display: 'flex', justifyContent: 'space-around', margin: '10px 0' }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <input
+            type="checkbox"
+            name="urgente"
+            checked={tarefa.urgente}
+            onChange={handleChange}
+          />
+          Urgente
+        </label>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <input
+            type="checkbox"
+            name="importante"
+            checked={tarefa.importante}
+            onChange={handleChange}
+          />
+          Importante
+        </label>
+      </div>
       
       <button type="submit" className="cta-button">Criar Tarefa</button>
     </form>

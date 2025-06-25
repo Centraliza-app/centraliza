@@ -15,5 +15,7 @@ public record TarefaRequestDTO(
     @NotNull LocalDate dataFim,
     @NotBlank(message = "O status não pode ser vazio.")
     @Pattern(regexp = "^(A FAZER|EM EXECUÇÃO|CONCLUÍDO)$", message = "Status inválido. Use 'A FAZER', 'EM EXECUÇÃO' ou 'CONCLUÍDO'.")
-    String status
+    String status,
+    Boolean urgente,
+    Boolean importante
 ) {}
