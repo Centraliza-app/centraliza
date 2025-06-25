@@ -5,7 +5,8 @@ import com.centraliza.model.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Date;
+// import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -31,12 +32,12 @@ public class Tarefa {
     private String descricao;
 
     @Column(name = "data_inicio", nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date dataInicio;
+    // @Temporal(TemporalType.DATE)
+    private LocalDate dataInicio;
 
     @Column(name = "data_fim", nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date dataFim;
+    // @Temporal(TemporalType.DATE)
+    private LocalDate dataFim;
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)

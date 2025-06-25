@@ -1,16 +1,17 @@
 package com.centraliza.dto;
 
 import com.centraliza.model.Tarefa;
-import java.util.Date;
+// import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.time.LocalDate;
 
 public record TarefaResponseDTO(
     Long id,
     String nome,
     String descricao,
-    Date dataInicio,
-    Date dataFim,
+    LocalDate dataInicio,
+    LocalDate dataFim,
     String status,
     List<SubtarefaResponseDTO> subtarefas
 ) {
