@@ -1,0 +1,54 @@
+.upcoming-tasks-card {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  grid-column: span 2; /* Ocupa duas colunas */
+}
+
+.upcoming-tasks-title {
+  margin: 0 0 16px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.upcoming-tasks-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.upcoming-task-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.upcoming-task-item:last-child {
+  border-bottom: none;
+}
+
+.upcoming-task-item .task-title {
+  font-weight: 500;
+  color: #555;
+}
+
+.upcoming-task-item .task-due-date {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #e67e22;
+  background-color: #fdf3e8;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.no-upcoming-tasks {
+  text-align: center;
+  color: #777;
+  padding: 20px 0;
+}

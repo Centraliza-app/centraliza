@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ListTodo, Timer, CalendarDays, LayoutDashboard, LogOut, Menu, HomeIcon } from 'lucide-react';
+import { ListTodo, Timer, CalendarDays, LogOut, HomeIcon } from 'lucide-react';
 import './SideBar-style.css'; 
 
 const Sidebar = ({ isAuthenticated, onLogout }) => {

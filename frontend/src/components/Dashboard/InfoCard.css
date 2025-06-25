@@ -1,0 +1,25 @@
+.info-card {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.info-card.warning .info-card-value {
+  color: #dc3545; /* Vermelho para alerta */
+}
+
+.info-card-title {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.info-card-value {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2575fc;
+}

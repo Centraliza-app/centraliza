@@ -1,0 +1,33 @@
+.chart-type-toggle {
+  display: flex;
+  gap: 4px;
+  background-color: #f0f2f5;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.toggle-button {
+  border: none;
+  background-color: transparent;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.toggle-button:hover {
+  background-color: #e9ecef;
+  color: #343a40;
+}
+
+/* Estilo do botão ativo */
+.toggle-button.active {
+  background-color: #fff;
+  color: #2575fc;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
