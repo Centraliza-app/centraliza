@@ -1,5 +1,6 @@
 package com.centraliza.model;
 
+import com.centraliza.model.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,7 +27,8 @@ public class Subtarefa {
     private String descricao;
 
     @Column(name = "status", nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING) // ALTERADO: Garante que o valor do enum seja salvo como String.
+    private Status status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tarefa_id", nullable = false)

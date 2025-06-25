@@ -1,4 +1,3 @@
-// Crie o arquivo: src/main/java/com/centraliza/dto/SubtarefaResponseDTO.java
 package com.centraliza.dto;
 
 import com.centraliza.model.Subtarefa;
@@ -9,13 +8,13 @@ public record SubtarefaResponseDTO(
     String descricao,
     String status
 ) {
-    // Construtor que facilita a conversão da Entidade para o DTO
+    // ALTERADO: O construtor agora extrai o valor de string do enum 'Status'.
     public SubtarefaResponseDTO(Subtarefa subtarefa) {
         this(
             subtarefa.getSubId(),
             subtarefa.getSubNome(),
             subtarefa.getDescricao(),
-            subtarefa.getStatus()
+            subtarefa.getStatus() != null ? subtarefa.getStatus().getValue() : null
         );
     }
 }

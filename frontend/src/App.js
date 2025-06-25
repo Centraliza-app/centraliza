@@ -1,37 +1,38 @@
 import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-// Importa os componentes da UI
-import LoginForm from './components/LoginForm';
-import TarefaListView from './components/TarefaListView';
-import CriarTarefaForm from './components/CriarTarefaForm';
-
-// Importa as funções da nossa API
+import Home from './pages/Home/Home';
+import NotFound from './pages/NotFound/NotFound';
+import Login from './pages/Login/Login';
+import Register from './pages/Register/Register';
+import Tarefas from './pages/Tarefas/Tarefas';
+import Calendario from './pages/Calendario/Calendario';
+import Dashboard from './pages/Dashboard/Dashboard';
+import Pomodoro from './components/Pomodoro';
+import KanbanPage from './components/KanbanPage';
 import { login, logout, listarTarefas } from './services/apiService';
+import ProtectedRoute from "./components/ProtectedRoute";
+import SideLayout from './components/SideLayout/SideLayout';
 
 const App = () => {
-  // 1. O estado de autenticação agora é baseado na existência de um token no localStorage
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('authToken'));
   const [tarefas, setTarefas] = useState([]);
 
-  // 2. Função de login que será passada para o LoginForm
   const handleLogin = async (username, password) => {
     const success = await login(username, password);
     if (success) {
       setIsAuthenticated(true);
     } else {
-      // Se o login falhar no serviço, lança um erro para o LoginForm mostrar a mensagem
       throw new Error('Falha na autenticação');
     }
   };
 
-  // 3. Função de logout
   const handleLogout = () => {
-    logout(); // Limpa o token do localStorage
-    setIsAuthenticated(false); // Atualiza o estado
-    setTarefas([]); // Limpa as tarefas da tela
+    logout();
+    setIsAuthenticated(false);
+    setTarefas([]);
   };
 
-  // 4. Efeito que carrega as tarefas QUANDO o usuário está autenticado
   useEffect(() => {
     const carregarDados = async () => {
       if (isAuthenticated) {
@@ -40,35 +41,76 @@ const App = () => {
           setTarefas(response.data);
         } catch (error) {
           console.error('Sessão expirada ou token inválido.', error);
-          // Se o token for inválido, o backend dará erro. Deslogamos o usuário.
           handleLogout();
         }
       }
     };
     carregarDados();
-  }, [isAuthenticated]); // Roda sempre que o estado 'isAuthenticated' mudar
+  }, [isAuthenticated]);
 
-  // ---- RENDERIZAÇÃO CONDICIONAL ----
-
-  // 5. Se não estiver autenticado, mostra o formulário de login
-  if (!isAuthenticated) {
-    return (
-      <div className="App">
-        <LoginForm onLogin={handleLogin} />
-      </div>
-    );
-  }
-
-  // 6. Se estiver autenticado, mostra a aplicação principal
   return (
-    <div className="App">
-      <div style={{ position: 'absolute', top: 10, right: 10 }}>
-        <button onClick={handleLogout}>Sair</button>
-      </div>
-      <h1>Centraliza - Tarefas</h1>
-      <CriarTarefaForm onTarefaCriada={() => listarTarefas().then(res => setTarefas(res.data))} />
-      <TarefaListView tarefas={tarefas} />
-    </div>
+    <Router>
+      <Routes>
+        {/* Rota principal: Dashboard para autenticados, Home para não autenticados */}
+        <Route
+          path="/"
+          element={
+            isAuthenticated ? (
+              <SideLayout isAuthenticated={isAuthenticated} onLogout={handleLogout}>
+                <Dashboard />
+              </SideLayout>
+            ) : (
+              <Home />
+            )
+          }
+        />
+        <Route
+          path="/tarefas"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <SideLayout isAuthenticated={isAuthenticated} onLogout={handleLogout}>
+                <Tarefas />
+              </SideLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/pomodoro"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <SideLayout isAuthenticated={isAuthenticated} onLogout={handleLogout}>
+                <Pomodoro />
+              </SideLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/kanban/:tarefaId"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <SideLayout isAuthenticated={isAuthenticated} onLogout={handleLogout}>
+                <KanbanPage />
+              </SideLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/calendario"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <SideLayout isAuthenticated={isAuthenticated} onLogout={handleLogout}>
+                <Calendario />
+              </SideLayout>
+            </ProtectedRoute>
+          }
+        />
+        {/* A rota /dashboard foi removida pois agora é a rota principal "/" */}
+        
+        <Route path="/login" element={<Login onLogin={handleLogin}/>} />
+        <Route path="/register" element={<Register />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
   );
 };
 

@@ -1,0 +1,169 @@
+/* Estilos para o body, para garantir que o sidebar flutue corretamente */
+body {
+  overflow-x: hidden; /* Evita barra de rolagem horizontal desnecessária */
+}
+
+/* Estilo base para o container principal da sidebar */
+.sidebar-container {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background-color: #312E81; /* bg-indigo-800 */
+  color: #FFFFFF; /* text-white */
+  width: 16rem; /* w-64 */
+  padding: 1.25rem; /* p-5 */
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease-in-out; /* transition-transform duration-300 ease-in-out */
+  transform: translateX(-100%); /* -translate-x-full (oculto por padrão em mobile) */
+  z-index: 50; /* z-50 */
+  box-shadow: 2px 0 5px rgba(0,0,0,0.2); /* Sutil sombra para dar profundidade */
+}
+
+/* Estado aberto da sidebar para mobile */
+.sidebar-container.is-open {
+  transform: translateX(0); /* translate-x-0 */
+}
+
+/* Media query para telas maiores (md: breakpoint do Tailwind, 768px) */
+@media (min-width: 768px) {
+  .sidebar-container {
+    transform: translateX(0); /* md:translate-x-0 */
+    position: static; /* md:static */
+    flex-shrink: 0; /* md:flex-shrink-0 */
+    box-shadow: none; /* Remove sombra em desktop se preferir */
+  }
+
+  /* Oculta o botão de menu hamburguer em desktop */
+  .sidebar-toggle-button {
+    display: none;
+  }
+
+  /* Oculta o botão de fechar no sidebar em desktop */
+  .sidebar-close-button {
+    display: none;
+  }
+
+  /* Oculta o overlay em desktop */
+  .sidebar-overlay {
+    display: none;
+  }
+}
+
+/* Botão de abrir/fechar sidebar para mobile */
+.sidebar-toggle-button {
+  position: fixed;
+  top: 1rem; /* top-4 */
+  left: 1rem; /* left-4 */
+  z-index: 50; /* z-50 */
+  padding: 0.5rem; /* p-2 */
+  background-color: #4338CA; /* bg-indigo-600 */
+  color: #FFFFFF; /* text-white */
+  border-radius: 0.375rem; /* rounded-md */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); /* shadow-lg */
+  border: none;
+  cursor: pointer;
+}
+
+/* Overlay para fechar sidebar no mobile */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0; /* top:0, left:0, bottom:0, right:0 */
+  background-color: rgba(0, 0, 0, 0.5); /* bg-black bg-opacity-50 */
+  z-index: 40; /* z-40 */
+}
+
+/* Estilos para o cabeçalho e logo do sidebar */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2.5rem; /* mb-10 */
+  margin-top: 0.5rem; /* mt-2 */
+  justify-content: space-between; /* justify-between */
+}
+
+@media (min-width: 768px) {
+  .sidebar-header {
+    margin-top: 0; /* md:mt-0 */
+  }
+}
+
+.sidebar-logo {
+  font-size: 1.875rem; /* text-3xl */
+  font-weight: 800; /* font-extrabold */
+  color: #FFFFFF; /* text-white */
+  text-decoration: none; /* Remove underline do link */
+}
+
+/* Lista de navegação */
+.sidebar-nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* space-y-4 */
+}
+
+/* Item de navegação */
+.sidebar-nav-item {
+  width: 100%;
+}
+
+/* Link de navegação */
+.sidebar-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* space-x-3 */
+  font-size: 1.125rem; /* text-lg */
+  font-weight: 500; /* font-medium */
+  color: #E0E7FF; /* text-indigo-200 */
+  text-decoration: none;
+  border-radius: 0.5rem; /* rounded-lg */
+  padding: 0.75rem; /* p-3 */
+  transition: all 0.2s ease; /* transition duration-200 */
+}
+
+.sidebar-nav-link:hover {
+  color: #FFFFFF; /* hover:text-white */
+  background-color: #3730A3; /* hover:bg-indigo-700 */
+}
+
+/* Seção de sair/login */
+.sidebar-footer {
+  margin-top: auto; /* mt-auto */
+  padding-top: 1.5rem; /* pt-6 */
+  border-top: 1px solid #4338CA; /* border-t border-indigo-700 */
+}
+
+/* Botão de sair/login */
+.sidebar-logout-button {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* space-x-3 */
+  font-size: 1.125rem; /* text-lg */
+  font-weight: 500; /* font-medium */
+  color: #E0E7FF; /* text-indigo-200 */
+  text-decoration: none;
+  border-radius: 0.5rem; /* rounded-lg */
+  padding: 0.75rem; /* p-3 */
+  width: 100%; /* w-full */
+  text-align: left; /* text-left */
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease; /* transition duration-200 */
+}
+
+.sidebar-logout-button:hover {
+  color: #FFFFFF; /* hover:text-white */
+  background-color: #3730A3; /* hover:bg-indigo-700 */
+}
+
+/* Ajuste para o ícone de login */
+.sidebar-logout-button .login-icon {
+  transform: rotate(180deg); /* transform rotate-180 */
+}
