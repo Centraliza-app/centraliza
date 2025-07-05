@@ -23,15 +23,19 @@ api.interceptors.request.use(async (config) => {
 export const login = async (usuario, senha) => {
   try {
     const response = await api.post('/auth/login', { usuario, senha });
-    const { token } = response.data;
-    if (token) {
+    const { token, nomeUsuario } = response.data;
+    if (token && nomeUsuario) {
       localStorage.setItem('authToken', token);
+      // NOVO: Armazenar o nome do usuário no localStorage
+      localStorage.setItem('nomeUsuario', nomeUsuario); 
       return true;
     }
     return false;
   } catch (error) {
     console.error("Erro no login:", error);
     localStorage.removeItem('authToken');
+    // NOVO: Remover também o nome do usuário em caso de erro
+    localStorage.removeItem('nomeUsuario'); 
     return false;
   }
 };
@@ -41,6 +45,8 @@ export const login = async (usuario, senha) => {
  */
 export const logout = () => {
   localStorage.removeItem('authToken');
+  // NOVO: Remover o nome do usuário ao fazer logout
+  localStorage.removeItem('nomeUsuario');
 };
 
 /**

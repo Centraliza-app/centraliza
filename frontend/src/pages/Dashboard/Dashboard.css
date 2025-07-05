@@ -1,0 +1,75 @@
+.dashboard-container {
+  padding: 2rem;
+  background-color: #f8f9fa;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Estilos para o InfoCard genérico */
+.info-card {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.info-card.warning .info-card-value {
+  color: #dc3545; /* Vermelho para alerta */
+}
+
+.info-card-title {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.info-card-value {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2575fc;
+}
+
+.list-button {
+    background-color: #dc3545; /* Cor vermelha para combinar com o alerta */
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.2s ease;
+}
+
+.list-button:hover {
+    background-color: #c82333; /* Um tom de vermelho mais escuro */
+}
+
+/* Ajuste o card de Status e o card do Gráfico */
+.subtask-status-card {
+  /* Ocupa uma coluna */
+  grid-column: span 1;
+}
+
+.subtask-chart-card {
+  grid-column: span 3;
+}
+
+/* Ajuste para telas menores (tablet e celular) */
+@media (max-width: 992px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr; /* Coluna única em telas menores */
+  }
+    /* Em telas menores, todos os cards ocupam a largura total */
+  .subtask-status-card,
+  .subtask-chart-card {
+    grid-column: span 1;
+  }
+}

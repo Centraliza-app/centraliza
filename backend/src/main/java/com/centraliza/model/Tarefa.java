@@ -1,11 +1,9 @@
 package com.centraliza.model;
 
-// ALTERADO: Importação do enum Status.
 import com.centraliza.model.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 
-// import java.util.Date;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -42,6 +40,12 @@ public class Tarefa {
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status;
+
+    @Column(name = "urgente")
+    private boolean urgente;
+
+    @Column(name = "importante")
+    private boolean importante;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)

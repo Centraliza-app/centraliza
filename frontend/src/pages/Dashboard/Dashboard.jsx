@@ -1,131 +1,199 @@
 import React, { useEffect, useState } from 'react';
 import { listarTarefas, listarSubtarefasPorTarefa } from '../../services/apiService';
-import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS } from 'chart.js/auto';
 import { useNavigate } from 'react-router-dom';
+import './Dashboard.css';
+
+import GreetingCard from '../../components/Dashboard/GreetingCard';
+import ProgressCard from '../../components/Dashboard/ProgressCard';
+import UpcomingTasksCard from '../../components/Dashboard/UpcomingTasksCard';
+import InfoCard from '../../components/Dashboard/InfoCard';
+import OverdueTasksModal from '../../components/Dashboard/OverdueTasksModal';
+import ChartCard from '../../components/Dashboard/ChartCard';
+import ChartTypeToggle from '../../components/Dashboard/ChartTypeToggle';
+
+import { Bar, Doughnut } from 'react-chartjs-2';
+import { Chart as ChartJS } from 'chart.js/auto';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [tarefas, setTarefas] = useState([]);
-  
+  const [nomeUsuario, setNomeUsuario] = useState('');
   const [dashboardData, setDashboardData] = useState({
-    numTarefasPendentes: 0,
-    numTarefasConcluidas: 0,
-    numSubtarefasConcluidas: 0,
-    chartData: {
-      labels: ['A FAZER', 'EM EXECUÇÃO', 'CONCLUÍDO'],
-      datasets: [
-        {
-          label: 'Subtarefas',
-          data: [0, 0, 0],
-          backgroundColor: ['#64B5F6', '#42A5F5', '#2962FF'],
-        },
-      ],
-    }
+    totalTasks: 0,
+    completedTasks: 0,
+    overdueTasks: 0,
+    upcomingTasks: [],
+    overdueTasksList: [],
+  });
+
+  const [activeChart, setActiveChart] = useState('doughnut');
+
+  const [subtaskCounts, setSubtaskCounts] = useState({ aFazer: 0, emExecucao: 0, concluidas: 0 });
+  const [subtaskChartData, setSubtaskChartData] = useState({
+    labels: ['A Fazer', 'Em Execução', 'Concluído'],
+    datasets: [
+      {
+        label: 'Subtarefas',
+        labels: ['A Fazer', 'Em Execução', 'Concluído'],
+        data: [0, 0, 0],
+        backgroundColor: ['#dc3545', '#ffc107', '#28a745'],
+      },
+    ],
   });
 
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const carregarDadosDashboard = async () => {
-    try {
-      const resTarefas = await listarTarefas();
-      const tarefasList = resTarefas.data;
-      setTarefas(tarefasList);
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
 
-      const promises = tarefasList.map(tarefa => 
-        listarSubtarefasPorTarefa(tarefa.id)
-      );
-      
-      const resultadosSubtarefas = await Promise.all(promises);
-      const todasSubtarefas = resultadosSubtarefas.flatMap(res => res.data);
+  const barOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+  };
 
-      const tarefasPendentes = tarefasList.filter(t => t.status === 'A FAZER').length;
-      const tarefasConcluidas = tarefasList.filter(t => t.status === 'CONCLUÍDO').length;
-
-      const subtarefasPendentes = todasSubtarefas.filter(s => s.status === 'A FAZER').length;
-      const subtarefasEmExecucao = todasSubtarefas.filter(s => s.status === 'EM EXECUÇÃO').length;
-      const subtarefasConcluidas = todasSubtarefas.filter(s => s.status === 'CONCLUÍDO').length;
-
-      setDashboardData({
-        numTarefasPendentes: tarefasPendentes,
-        numTarefasConcluidas: tarefasConcluidas,
-        numSubtarefasConcluidas: subtarefasConcluidas,
-        chartData: {
-          labels: ['A FAZER', 'EM EXECUÇÃO', 'CONCLUÍDO'],
-          datasets: [
-            {
-              label: 'Subtarefas',
-              data: [subtarefasPendentes, subtarefasEmExecucao, subtarefasConcluidas],
-              backgroundColor: ['#64B5F6', '#42A5F5', '#2962FF'],
-            },
-          ],
-        }
-      });
-
-    } catch (error) {
-      console.error('Erro ao carregar dados do dashboard:', error);
-    } finally {
-      setLoading(false);
+  const doughnutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '70%',
+    plugins: {
+      legend: { position: 'right', labels: { usePointStyle: true, pointStyle: 'circle', padding: 20 } }
     }
   };
 
   useEffect(() => {
+    const nome = localStorage.getItem('nomeUsuario');
+    if (nome) {
+      setNomeUsuario(nome);
+    }
+    
+    const carregarDadosDashboard = async () => {
+      setLoading(true);
+      try {
+        const response = await listarTarefas();
+        const tarefas = response.data;
+
+        // --- Lógica de Tarefas Principais ---
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+        const limiteProximas = new Date(hoje);
+        limiteProximas.setDate(hoje.getDate() + 7);
+
+        const concluidas = tarefas.filter(t => t.status === 'CONCLUÍDO').length;
+        
+        const listaDeAtrasadas = tarefas.filter(t => {
+            const dataFim = new Date(t.dataFim + 'T00:00:00');
+            return dataFim < hoje && t.status !== 'CONCLUÍDO';
+        });
+        
+        const proximas = tarefas
+          .filter(t => {
+            const dataFim = new Date(t.dataFim + 'T00:00:00');
+            return t.status !== 'CONCLUÍDO' && dataFim >= hoje && dataFim <= limiteProximas;
+          })
+          .sort((a, b) => new Date(a.dataFim) - new Date(b.dataFim))
+          .slice(0, 3)
+          .map(t => ({ id: t.id, titulo: t.nome, dataFim: t.dataFim }));
+
+        // --- Lógica de Subtarefas ---
+        let subtarefasAFazer = 0;
+        let subtarefasEmExecucao = 0;
+        let subtarefasConcluidas = 0;
+
+        // Carrega subtarefas para todas as tarefas e soma os status
+        for (const tarefa of tarefas) {
+          try {
+            const resSub = await listarSubtarefasPorTarefa(tarefa.id);
+            const subtarefas = resSub.data;
+            subtarefasAFazer += subtarefas.filter(st => st.status === 'A FAZER').length;
+            subtarefasEmExecucao += subtarefas.filter(st => st.status === 'EM EXECUÇÃO').length;
+            subtarefasConcluidas += subtarefas.filter(st => st.status === 'CONCLUÍDO').length;
+          } catch (e) {
+            // Se falhar ao buscar subtarefas de uma tarefa, ignora
+          }
+        }
+
+        setSubtaskCounts({
+          aFazer: subtarefasAFazer,
+          emExecucao: subtarefasEmExecucao,
+          concluidas: subtarefasConcluidas,
+        });
+
+        setSubtaskChartData(prevData => ({
+          ...prevData,
+          datasets: [
+            {
+              ...prevData.datasets[0],
+              data: [subtarefasAFazer, subtarefasEmExecucao, subtarefasConcluidas],
+            },
+          ],
+        }));
+
+        setDashboardData({
+          totalTasks: tarefas.length,
+          completedTasks: concluidas,
+          overdueTasks: listaDeAtrasadas.length,
+          upcomingTasks: proximas,
+          overdueTasksList: listaDeAtrasadas,
+        });
+
+      } catch (error) {
+        console.error("Erro ao carregar dados do dashboard:", error);
+      }
+      setLoading(false);
+    };
+
     carregarDadosDashboard();
   }, []);
 
+  if (loading) {
+    return <div>Carregando...</div>;
+  }
+
   return (
-    <main className="tarefas-container">
-      <div className="tarefas-header">
-        <h1 className="tarefas-title">Home</h1>
-        <button className="cta-button small" onClick={() => navigate('/tarefas')}>
-          Ver Tarefas
-        </button>
+    <div className="dashboard-container">
+      <div className="dashboard-grid">
+        <GreetingCard 
+          nomeUsuario={nomeUsuario} 
+          concluidas={dashboardData.completedTasks}
+          atrasadas={dashboardData.overdueTasks}
+        />
+        <ProgressCard 
+          concluidas={dashboardData.completedTasks}
+          total={dashboardData.totalTasks}
+        />
+        <InfoCard 
+          titulo="Tarefas Atrasadas" 
+          valor={dashboardData.overdueTasks} 
+          isWarning={dashboardData.overdueTasks > 0}
+          onListClick={handleOpenModal} 
+        />
+        <UpcomingTasksCard tarefas={dashboardData.upcomingTasks} />
+        <ChartCard
+          title="Composição das Subtarefas"
+          controls={
+            <ChartTypeToggle
+              activeType={activeChart}
+              onTypeChange={setActiveChart} // Passa a função de mudar o estado
+            />
+          }
+        >
+          {/* RENDERIZA O GRÁFICO CORRETO COM BASE NO ESTADO */}
+          {activeChart === 'bar' && (
+            <Bar data={subtaskChartData} options={barOptions} />
+          )}
+          {activeChart === 'doughnut' && (
+            <Doughnut data={subtaskChartData} options={doughnutOptions} />
+          )}
+        </ChartCard>
       </div>
-
-      {loading ? (
-        <p>Carregando...</p>
-      ) : (
-        <>
-          <section className="dashboard-section">
-            <h2>Visão Geral</h2>
-            <div className="dashboard-cards">
-              <div className="tarefa-item dashboard-card">
-                <h3>Tarefas Pendentes</h3>
-                <p className="dashboard-card-metric">{dashboardData.numTarefasPendentes}</p>
-              </div>
-              <div className="tarefa-item dashboard-card">
-                <h3>Tarefas Concluídas</h3>
-                <p className="dashboard-card-metric">{dashboardData.numTarefasConcluidas}</p>
-              </div>
-              <div className="tarefa-item dashboard-card">
-                <h3>Subtarefas Concluídas</h3>
-                <p className="dashboard-card-metric">{dashboardData.numSubtarefasConcluidas}</p>
-              </div>
-            </div>
-          </section>
-
-          <section className="dashboard-section">
-            <h2>Resumo de Subtarefas</h2>
-            <div className="dashboard-chart-container">
-              <Bar data={dashboardData.chartData} options={{ responsive: true, maintainAspectRatio: false }} />
-            </div>
-          </section>
-
-          <section className="dashboard-section">
-            <h2>Tarefas Recentes</h2>
-            <ul className="tarefa-lista dashboard-task-list">
-              {tarefas.slice(0, 5).map((t) => (
-                <li key={t.id} className="tarefa-item">
-                  <strong>{t.nome}</strong>
-                  <p>{t.descricao}</p>
-                  <span className="dashboard-task-status">{t.status}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        </>
-      )}
-    </main>
+      <OverdueTasksModal 
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        tasks={dashboardData.overdueTasksList}
+      />
+    </div>
   );
 };
 

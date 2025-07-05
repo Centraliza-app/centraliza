@@ -1,0 +1,16 @@
+/* Cabeçalho do card para alinhar título e controles */
+.chart-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.chart-card-title {
+  margin: 0;
+}
+
+.chart-card .chart-container {
+  height: 250px; 
+  margin-top: 20px;
+}

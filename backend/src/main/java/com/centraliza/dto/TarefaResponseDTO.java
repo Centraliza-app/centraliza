@@ -13,6 +13,8 @@ public record TarefaResponseDTO(
     LocalDate dataInicio,
     LocalDate dataFim,
     String status,
+    boolean urgente,
+    boolean importante,
     List<SubtarefaResponseDTO> subtarefas
 ) {
     public TarefaResponseDTO(Tarefa tarefa) {
@@ -23,6 +25,8 @@ public record TarefaResponseDTO(
             tarefa.getDataInicio(),
             tarefa.getDataFim(),
             tarefa.getStatus() != null ? tarefa.getStatus().getValue() : null,
+            tarefa.isUrgente(),
+            tarefa.isImportante(),
             // Garante que a lista não seja nula e converte cada Subtarefa para seu DTO
             tarefa.getSubtarefas() != null ?
                 tarefa.getSubtarefas().stream()

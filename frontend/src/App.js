@@ -10,6 +10,7 @@ import Calendario from './pages/Calendario/Calendario';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Pomodoro from './components/Pomodoro';
 import KanbanPage from './components/KanbanPage';
+import EisenhowerMatrix from './pages/EisenhowerMatrix/EisenhowerMatrix';
 import { login, logout, listarTarefas } from './services/apiService';
 import ProtectedRoute from "./components/ProtectedRoute";
 import SideLayout from './components/SideLayout/SideLayout';
@@ -104,7 +105,17 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-        {/* A rota /dashboard foi removida pois agora é a rota principal "/" */}
+
+        <Route
+          path="/matriz-eisenhower"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <SideLayout isAuthenticated={isAuthenticated} onLogout={handleLogout}>
+                <EisenhowerMatrix />
+              </SideLayout>
+            </ProtectedRoute>
+          }
+        />
         
         <Route path="/login" element={<Login onLogin={handleLogin}/>} />
         <Route path="/register" element={<Register />} />

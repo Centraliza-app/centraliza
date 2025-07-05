@@ -15,7 +15,7 @@ const Login = ({onLogin}) => {
         try {
         // Chama a função de login que veio do App.js
         await onLogin(username, password);
-        navigate('/tarefas'); // Redireciona para a página de tarefas após o login
+        navigate('/'); // Redireciona para a página home após o login
         } catch (err) {
             setError('Usuário ou senha inválidos.');
         } finally {

@@ -34,13 +34,13 @@ public class AuthController {
         
         var auth = this.authenticationManager.authenticate(usernamePassword);
         
-        // NOVO: Buscar o usuário completo para obter o nome
+        // Buscar o usuário completo para obter o nome
         var usuario = usuarioRepository.findByUsuario(data.usuario())
             .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         var token = tokenService.generateToken((UserDetails) auth.getPrincipal());
         
-        // ALTERADO: Retornar o novo DTO com token e nome do usuário
+        // Retornar o novo DTO com token e nome do usuário
         return ResponseEntity.ok(new LoginResponseDTO(token, usuario.getNome()));
     }
 }

@@ -1,0 +1,66 @@
+/* Estilos para o Modal de Tarefas Atrasadas */
+.overdue-modal h2 {
+    color: #333;
+    margin-top: 0;
+}
+
+.overdue-modal p {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.overdue-task-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 300px; /* Altura máxima para a lista */
+    overflow-y: auto; /* Adiciona scroll se a lista for longa */
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+}
+
+.overdue-task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 8px;
+    border-bottom: 1px solid #eee;
+}
+
+.overdue-task-item:last-child {
+    border-bottom: none;
+}
+
+.overdue-task-item .task-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.overdue-task-item strong {
+    font-weight: 600;
+    color: #444;
+}
+
+.overdue-task-item span {
+    font-size: 0.8rem;
+    color: #777;
+}
+
+.task-status-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-a-fazer {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.status-em-execução {
+    background-color: #e3f2fd;
+    color: #1565c0;
+}

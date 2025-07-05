@@ -1,0 +1,144 @@
+
+.eisenhower-container {
+  padding: 2rem;
+  background-color: #f8f9fa;
+  height: 100%;
+}
+
+.eisenhower-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.eisenhower-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a237e;
+  margin-bottom: 0.5rem;
+}
+
+.eisenhower-subtitle {
+  font-size: 1.1rem;
+  color: #546e7a;
+}
+
+.eisenhower-matrix {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 70vh;
+}
+
+.eisenhower-quadrant {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.3s ease;
+}
+
+/* ALTERADO: Adicionadas cores de fundo pastel para cada quadrante. */
+.eisenhower-quadrant.do { background-color: #ffebee; /* Vermelho Pastel */ }
+.eisenhower-quadrant.schedule { background-color: #e3f2fd; /* Azul Pastel */ }
+.eisenhower-quadrant.delegate { background-color: #fff8e1; /* Amarelo Pastel */ }
+.eisenhower-quadrant.eliminate { background-color: #f5f5f5; /* Cinza Pastel */ }
+
+
+.quadrant-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid;
+}
+
+/* Cores específicas para cada quadrante */
+.quadrant.do .quadrant-title { border-color: #d32f2f; }
+.quadrant.schedule .quadrant-title { border-color: #1976d2; }
+.quadrant.delegate .quadrant-title { border-color: #f57c00; }
+.quadrant.eliminate .quadrant-title { border-color: #757575; }
+
+.tasks-list {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-right: 10px; /* Espaço para a barra de rolagem */
+}
+
+.task-card {
+  /* ALTERADO: Aumentado o contraste do card com um fundo branco puro. */
+  background-color: #ffffff;
+  border-left: 4px solid;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.quadrant.do .task-card { border-color: #ef5350; }
+.quadrant.schedule .task-card { border-color: #42a5f5; }
+.quadrant.delegate .task-card { border-color: #ffa726; }
+.quadrant.eliminate .task-card { border-color: #83a590; }
+
+/* ALTERADO: Adicionado para alinhar título e data na mesma linha. */
+.task-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.25rem;
+}
+
+.task-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  display: block;
+}
+
+/* ALTERADO: Adicionado para estilizar a data final da tarefa. */
+.task-card-date {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #777;
+  white-space: nowrap;
+  margin-left: 1rem;
+}
+
+.task-card-description {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0;
+}
+
+.no-tasks-message {
+  color: #888;
+  text-align: center;
+  margin-top: 2rem;
+  font-style: italic;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 4rem;
+  font-size: 1.5rem;
+  color: #555;
+}
+
+/* Responsividade */
+@media (max-width: 992px) {
+  .eisenhower-matrix {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    min-height: auto;
+  }
+
+  .eisenhower-quadrant {
+    min-height: 300px; /* Altura mínima para quadrantes em mobile */
+  }
+}
