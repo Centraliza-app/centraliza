@@ -42,10 +42,10 @@ public class Tarefa {
     private Status status;
 
     @Column(name = "urgente")
-    private boolean urgente;
+    private Boolean urgente;
 
     @Column(name = "importante")
-    private boolean importante;
+    private Boolean importante;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
