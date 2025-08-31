@@ -67,10 +67,13 @@ export const criarSubtarefa = (tarefaId, dados) =>
 // Função para listar as subtarefas de uma tarefa específica
 export const listarSubtarefasPorTarefa = (tarefaId) => api.get(`/tarefas/${tarefaId}/subtarefas`);
 
-
 // Outros métodos à testar ou implementar depois:
 export const atualizarSubtarefa = (tarefaId, subId, dados) => api.put(`/tarefas/${tarefaId}/subtarefas/${subId}`, dados);
 export const deletarSubtarefa = (tarefaId, subId) => api.delete(`/tarefas/${tarefaId}/subtarefas/${subId}`);
+
+// Funções para interagir com as sessões Pomodoro
+export const listarPomodoroSessionsPorTarefa = (tarefaId) => api.get(`/pomodoro-sessions/tarefa/${tarefaId}`);
+export const criarPomodoroSession = (dados) => api.post(`/pomodoro-sessions`, dados);
 
 // Exporta a instância do api caso precise em outros lugares
 export default api;
