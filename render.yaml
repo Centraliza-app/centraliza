@@ -3,10 +3,10 @@ services:
   - type: web
     name: centraliza-backend
     env: docker
+    plan: free # Adicione esta linha
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     envVars:
-      # Conecta ao banco de dados PostgreSQL criado no Render
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: db_centraliza
@@ -19,10 +19,8 @@ services:
         fromDatabase:
           name: db_centraliza
           property: password
-      # Define a URL do frontend para a configuração de CORS
       - key: FRONTEND_URL
         value: https://centraliza-frontend.onrender.com
-      # Chave secreta para o JWT, gerada automaticamente pelo Render
       - key: API_SECURITY_TOKEN_SECRET
         generateValue: true
 
@@ -30,11 +28,10 @@ services:
   - type: web
     name: centraliza-frontend
     env: docker
+    plan: free # Adicione esta linha
     dockerfilePath: ./frontend/Dockerfile
     dockerContext: ./frontend
     envVars:
-      # CORREÇÃO APLICADA AQUI:
-      # Aponta diretamente para a URL pública do serviço de backend.
       - key: REACT_APP_API_URL
         value: https://centraliza-backend.onrender.com
 
@@ -43,3 +40,4 @@ databases:
   - name: db_centraliza
     databaseName: db_centraliza
     user: db_centraliza_user
+    plan: free # Adicione esta linha
