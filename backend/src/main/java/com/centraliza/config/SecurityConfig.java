@@ -2,7 +2,7 @@ package com.centraliza.config;
 
 import com.centraliza.config.security.SecurityFilter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value; // Importação adicionada
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -31,7 +31,6 @@ public class SecurityConfig {
     @Autowired
     private SecurityFilter securityFilter;
 
-    // Injeta o valor da propriedade 'frontend.url' do application.properties ou variável de ambiente
     @Value("${frontend.url}")
     private String frontendUrl;
 
@@ -42,6 +41,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(
                                 "/v3/api-docs/**",
@@ -66,7 +66,6 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Adiciona a URL do frontend (do Render) e mantém as de desenvolvimento local
         configuration.setAllowedOrigins(List.of(frontendUrl, "http://localhost:3000", "http://localhost:3001"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
