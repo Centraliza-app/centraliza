@@ -16,13 +16,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
-
-import static org.springframework.security.config.Customizer.withDefaults;
+// --- COMENTADO --- Importações de CORS que não serão mais usadas para o teste
+// import org.springframework.web.cors.CorsConfiguration;
+// import org.springframework.web.cors.CorsConfigurationSource;
+// import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+// import java.util.List;
+// import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
@@ -31,23 +31,27 @@ public class SecurityConfig {
     @Autowired
     private SecurityFilter securityFilter;
 
-    // Injects the frontend URL from environment variables
-    @Value("${FRONTEND_URL}")
-    private String frontendUrl;
+    // --- COMENTADO --- A injeção da URL do frontend não é necessária com o CORS desabilitado
+    // @Value("${frontend.url}")
+    // private String frontendUrl;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .cors(withDefaults())
+                // --- ALTERADO --- A configuração de CORS foi desabilitada para o teste.
+                .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
+                        // Permite requisições OPTIONS (pre-flight)
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // Libera os endpoints de autenticação e documentação da API
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html").permitAll()
+                        // Exige autenticação para todas as outras requisições
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
@@ -64,10 +68,14 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    /* --- COMENTADO ---
+     * O bean de configuração de CORS foi desativado para o teste.
+     * Quando você for reativar o CORS, descomente este bloco e mude
+     * .cors(AbstractHttpConfigurer::disable) para .cors(withDefaults()) novamente.
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Uses the frontendUrl from environment variables
+        // A linha abaixo usa a variável de ambiente para permitir a origem do seu frontend
         configuration.setAllowedOrigins(List.of(frontendUrl, "http://localhost:3000"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
@@ -76,4 +84,5 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+    */
 }
