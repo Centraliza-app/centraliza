@@ -32,7 +32,7 @@ public class SecurityConfig {
     private SecurityFilter securityFilter;
 
     // Injects the frontend URL from environment variables
-    @Value("${frontend.url}")
+    @Value("${FRONTEND_URL}")
     private String frontendUrl;
 
     @Bean
@@ -42,7 +42,6 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        // ADD THIS LINE to permit CORS preflight requests
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(
