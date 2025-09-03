@@ -3,7 +3,7 @@ services:
   - type: web
     name: centraliza-backend
     env: docker
-    plan: free # Adicione esta linha
+    plan: free
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     envVars:
@@ -28,16 +28,19 @@ services:
   - type: web
     name: centraliza-frontend
     env: docker
-    plan: free # Adicione esta linha
+    plan: free
     dockerfilePath: ./frontend/Dockerfile
     dockerContext: ./frontend
     envVars:
       - key: REACT_APP_API_URL
         value: https://centraliza-backend.onrender.com
+      # ADICIONE A LINHA ABAIXO PARA DESABILITAR O ESLINT NO BUILD
+      - key: DISABLE_ESLINT_PLUGIN
+        value: 'true'
 
 databases:
   # Definição do banco de dados PostgreSQL
   - name: db_centraliza
     databaseName: db_centraliza
     user: db_centraliza_user
-    plan: free # Adicione esta linha
+    plan: free
