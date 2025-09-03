@@ -1,0 +1,47 @@
+services:
+  # Serviço do Backend (Java/Spring Boot)
+  - type: web
+    name: centraliza-backend
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    envVars:
+      # Conecta ao banco de dados PostgreSQL criado no Render
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: db_centraliza
+          property: connectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: db_centraliza
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: db_centraliza
+          property: password
+      # Define a URL do frontend para a configuração de CORS
+      - key: FRONTEND_URL
+        value: https://centraliza-frontend.onrender.com # Substitua se o Render gerar um nome diferente
+      # Chave secreta para o JWT, gerada automaticamente pelo Render
+      - key: API_SECURITY_TOKEN_SECRET
+        generateValue: true
+
+  # Serviço do Frontend (React)
+  - type: web
+    name: centraliza-frontend
+    env: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    envVars:
+      # Expõe a URL do backend para a aplicação React
+      - key: REACT_APP_API_URL
+        fromService:
+          type: web
+          name: centraliza-backend
+          property: url
+
+databases:
+  # Definição do banco de dados PostgreSQL
+  - name: db_centraliza
+    databaseName: db_centraliza
+    user: db_centraliza_user
