@@ -6,9 +6,11 @@ services:
     plan: free
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
+    # ADICIONE ESTA SEÇÃO DE HEALTH CHECK
+    healthCheck:
+      path: /actuator/health
+      initialDelaySeconds: 30 # Aumenta o tempo inicial antes da primeira verificação
     envVars:
-      # As variáveis do banco de dados foram removidas daqui
-      # para usar as que você configurou no site do Render.
       - key: FRONTEND_URL
         value: https://centraliza-frontend.onrender.com
       - key: API_SECURITY_TOKEN_SECRET
