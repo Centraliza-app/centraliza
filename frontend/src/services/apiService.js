@@ -2,11 +2,7 @@ import axios from 'axios';
 
 // Cria uma instância base do Axios
 const api = axios.create({
-<<<<<<< HEAD
   baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8080',
-=======
-  baseURL: '/',
->>>>>>> 12c3bf6e1ca686edb54e0d216a5d65c934d84242
 });
 
 // Interceptor para adicionar o token em todas as requisições
@@ -30,7 +26,6 @@ export const login = async (usuario, senha) => {
     const { token, nomeUsuario } = response.data;
     if (token && nomeUsuario) {
       localStorage.setItem('authToken', token);
-      // NOVO: Armazenar o nome do usuário no localStorage
       localStorage.setItem('nomeUsuario', nomeUsuario); 
       return true;
     }
@@ -38,7 +33,6 @@ export const login = async (usuario, senha) => {
   } catch (error) {
     console.error("Erro no login:", error);
     localStorage.removeItem('authToken');
-    // NOVO: Remover também o nome do usuário em caso de erro
     localStorage.removeItem('nomeUsuario'); 
     return false;
   }
@@ -49,7 +43,6 @@ export const login = async (usuario, senha) => {
  */
 export const logout = () => {
   localStorage.removeItem('authToken');
-  // NOVO: Remover o nome do usuário ao fazer logout
   localStorage.removeItem('nomeUsuario');
 };
 
@@ -63,15 +56,11 @@ export const atualizarTarefa = (id, dados) => api.put(`/tarefas/${id}`, dados);
 /**
  * Funções para interagir com as subtarefas.
  */
-
-// Função correta para criar subtarefa associada a uma tarefa (corpo NÃO leva tarefaId, só no path)
 export const criarSubtarefa = (tarefaId, dados) => 
   api.post(`/tarefas/${tarefaId}/subtarefas`, dados);
 
-// Função para listar as subtarefas de uma tarefa específica
 export const listarSubtarefasPorTarefa = (tarefaId) => api.get(`/tarefas/${tarefaId}/subtarefas`);
 
-// Outros métodos à testar ou implementar depois:
 export const atualizarSubtarefa = (tarefaId, subId, dados) => api.put(`/tarefas/${tarefaId}/subtarefas/${subId}`, dados);
 export const deletarSubtarefa = (tarefaId, subId) => api.delete(`/tarefas/${tarefaId}/subtarefas/${subId}`);
 
@@ -79,5 +68,4 @@ export const deletarSubtarefa = (tarefaId, subId) => api.delete(`/tarefas/${tare
 export const listarPomodoroSessionsPorTarefa = (tarefaId) => api.get(`/pomodoro-sessions/tarefa/${tarefaId}`);
 export const criarPomodoroSession = (dados) => api.post(`/pomodoro-sessions`, dados);
 
-// Exporta a instância do api caso precise em outros lugares
 export default api;
