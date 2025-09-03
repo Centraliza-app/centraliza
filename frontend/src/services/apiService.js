@@ -2,7 +2,11 @@ import axios from 'axios';
 
 // Cria uma instância base do Axios
 const api = axios.create({
+<<<<<<< HEAD
   baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8080',
+=======
+  baseURL: '/',
+>>>>>>> 12c3bf6e1ca686edb54e0d216a5d65c934d84242
 });
 
 // Interceptor para adicionar o token em todas as requisições

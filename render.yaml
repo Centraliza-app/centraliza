@@ -21,7 +21,7 @@ services:
           property: password
       # Define a URL do frontend para a configuração de CORS
       - key: FRONTEND_URL
-        value: https://centraliza-frontend.onrender.com # Substitua se o Render gerar um nome diferente
+        value: https://centraliza-frontend.onrender.com
       # Chave secreta para o JWT, gerada automaticamente pelo Render
       - key: API_SECURITY_TOKEN_SECRET
         generateValue: true
@@ -33,12 +33,10 @@ services:
     dockerfilePath: ./frontend/Dockerfile
     dockerContext: ./frontend
     envVars:
-      # Expõe a URL do backend para a aplicação React
+      # CORREÇÃO APLICADA AQUI:
+      # Aponta diretamente para a URL pública do serviço de backend.
       - key: REACT_APP_API_URL
-        fromService:
-          type: web
-          name: centraliza-backend
-          property: url
+        value: https://centraliza-backend.onrender.com
 
 databases:
   # Definição do banco de dados PostgreSQL
