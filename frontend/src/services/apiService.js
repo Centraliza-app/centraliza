@@ -3,6 +3,9 @@ import axios from 'axios';
 // Cria uma instância base do Axios
 const api = axios.create({
   baseURL: 'http://localhost:8080',
+  headers: {
+    'Content-Type': 'application/json'
+  }
 });
 
 // Interceptor para adicionar o token em todas as requisições
@@ -11,6 +14,8 @@ api.interceptors.request.use(async (config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  // Garantir que Content-Type seja sempre application/json
+  config.headers['Content-Type'] = 'application/json';
   return config;
 });
 
