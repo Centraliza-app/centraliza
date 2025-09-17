@@ -1,6 +1,7 @@
 package com.centraliza.service;
 
 import com.centraliza.model.Tarefa;
+import com.centraliza.model.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
@@ -36,6 +37,26 @@ public class EmailService {
             System.err.println("### ERRO AO ENVIAR E-MAIL ###");
             System.err.println(e.getMessage());
             // Lança a exceção novamente para que o NotificationService saiba que falhou
+            throw e;
+        }
+    }
+
+    public void sendWelcomeEmail(Usuario usuario) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(usuario.getEmail());
+            message.setSubject("Bem-vindo ao Centraliza!");
+            message.setText(
+                "Olá " + usuario.getNome() + ",\n\n" +
+                "Seu cadastro no Centraliza foi realizado com sucesso!\n" +
+                "Acesse o site: https://centralizaa.com\n\n" +
+                "Atenciosamente,\nEquipe Centraliza"
+            );
+            mailSender.send(message);
+        } catch (MailException e) {
+            System.err.println("### ERRO AO ENVIAR E-MAIL DE BOAS-VINDAS ###");
+            System.err.println(e.getMessage());
             throw e;
         }
     }

@@ -54,6 +54,16 @@ export const logout = () => {
   localStorage.removeItem('nomeUsuario');
 };
 
+export const registrarUsuario = async (dados) => {
+  try {
+    const response = await api.post('/usuarios/registrar', dados);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data || 'Erro ao registrar usuário');
+  }
+};
+
+
 /**
  * Funções para interagir com as tarefas.
  */
