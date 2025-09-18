@@ -79,6 +79,16 @@ const CalendarioPage = () => {
             week: 'Semana',
             day: 'Dia',
           }}
+          onSelectEvent={(event) => {
+            navigate(`/kanban/${event.id}`);
+          }}
+          eventPropGetter={(event) => ({
+            style: {
+              cursor: 'pointer',
+              backgroundColor: '#007bff',
+              borderRadius: '3px'
+            }
+          })}
         />
       )}
     </div>
