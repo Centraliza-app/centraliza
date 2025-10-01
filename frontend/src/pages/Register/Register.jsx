@@ -24,7 +24,7 @@ const Register = () => {
         setLoading(true);
         try {
             await registrarUsuario(formData);
-            alert('Cadastro realizado com sucesso! Verifique seu e-mail.');
+            alert('Cadastro realizado com sucesso! Verifique seu e-mail para ativar sua conta.');
             navigate('/login');
         } catch (err) {
             setError(err.message || 'Erro ao realizar o cadastro.');

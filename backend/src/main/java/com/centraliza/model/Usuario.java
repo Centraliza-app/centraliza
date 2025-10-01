@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 @Getter
@@ -34,4 +36,21 @@ public class Usuario {
 
     @NotBlank
     private String senha;
+
+    @Column(name = "notificar", nullable = false)
+    private Boolean notificar = Boolean.TRUE;
+
+    @Column(name = "enabled", nullable = false)
+    private boolean enabled = false;
+
+    private String verificationToken;
+
+    private LocalDateTime tokenExpiration;
+
+    @PrePersist
+    public void prePersist() {
+        if (notificar == null) {
+            notificar = Boolean.TRUE;
+        }
+    }
 }
