@@ -56,6 +56,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of(
             "http://localhost:3000",
             "http://localhost:3001",
+            "https://centraliza-frontend-hkfn.onrender.com",
             "https://centraliza-frontend.onrender.com"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
