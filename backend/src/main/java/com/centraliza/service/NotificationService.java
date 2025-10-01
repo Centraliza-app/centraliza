@@ -1,6 +1,7 @@
 package com.centraliza.service;
 
 import com.centraliza.model.Tarefa;
+import com.centraliza.model.Usuario;
 import com.centraliza.model.enums.Status;
 import com.centraliza.repository.TarefaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class NotificationService {
@@ -20,8 +23,8 @@ public class NotificationService {
     private EmailService emailService;
 
     // Mantenha a configuração de agendamento que for melhor para você (a cada minuto para testes, ou uma vez por dia para produção)
-    // @Scheduled(cron = "0 * * * * *") // Exemplo: a cada minuto para testes
-    @Scheduled(cron = "0 0 1 * * *", zone = "America/Sao_Paulo") 
+    @Scheduled(cron = "0 * * * * *") // Exemplo: a cada minuto para testes
+    //@Scheduled(cron = "0 0 1 * * *", zone = "America/Sao_Paulo") código para enviar um email à 1 da manhã
     public void notifyOverdueTasks() {
         System.out.println("Verificando tarefas atrasadas...");
 
@@ -35,30 +38,44 @@ public class NotificationService {
             return;
         }
 
-        System.out.println("Encontradas " + overdueTasks.size() + " tarefas atrasadas. Enviando e-mails...");
+        System.out.println("Encontradas " + overdueTasks.size() + " tarefas atrasadas. Preparando e-mails agrupados por usuário...");
 
-        for (Tarefa tarefa : overdueTasks) {
+        // Agrupa as tarefas em atraso por usuário
+        Map<Usuario, List<Tarefa>> tarefasPorUsuario = overdueTasks.stream()
+                .collect(Collectors.groupingBy(Tarefa::getUsuario));
+
+        // Envia UM e-mail por usuário com a lista de atrasos
+        tarefasPorUsuario.forEach((usuario, tarefasDoUsuario) -> {
             try {
+                // Regras de destinatário (mantém seu redirecionamento para admin)
                 String recipientEmail;
-
-                // --- esse é um teste do envio de emails pra conta admin/admin ---
-                // Verifica se o nome de usuário da tarefa é "admin"
-                if ("admin".equals(tarefa.getUsuario().getUsuario())) {
+                if ("admin".equals(usuario.getUsuario())) {
                     recipientEmail = "centralizaifsp@gmail.com";
-                    System.out.println("Tarefa do admin encontrada. Redirecionando e-mail para: " + recipientEmail);
+                    System.out.println("Usuário admin detectado. Redirecionando e-mail para: " + recipientEmail);
                 } else {
-                    // Para qualquer outro usuário, usa o e-mail cadastrado
-                    recipientEmail = tarefa.getUsuario().getEmail();
+                    recipientEmail = usuario.getEmail();
                 }
-                // --- fim do teste ---
 
-                emailService.sendOverdueTaskEmail(recipientEmail, tarefa);
-                System.out.println("E-mail enviado para: " + recipientEmail + " sobre a tarefa: " + tarefa.getNome());
+                // Se não houver e-mail, apenas registra e segue
+                if (recipientEmail == null || recipientEmail.isBlank()) {
+                    System.err.println("Usuário sem e-mail cadastrado: " + usuario.getUsuario() + ". Ignorando envio.");
+                    return;
+                }
+
+                String userName = (usuario.getNome() != null && !usuario.getNome().isBlank())
+                        ? usuario.getNome()
+                        : usuario.getUsuario();
+
+                // Chama o novo método que envia UM e-mail com TODAS as tarefas em atraso do usuário
+                emailService.sendOverdueTasksSummary(recipientEmail, userName, tarefasDoUsuario);
+
+                System.out.println("E-mail de resumo enviado para: " + recipientEmail
+                        + " | Tarefas em atraso: " + tarefasDoUsuario.size());
 
             } catch (Exception e) {
-                // A mensagem de erro continuará mostrando o e-mail original do usuário para referência
-                System.err.println("Erro ao enviar e-mail para o usuário: " + tarefa.getUsuario().getUsuario() + " - " + e.getMessage());
+                System.err.println("Erro ao enviar e-mail para o usuário: " + usuario.getUsuario()
+                        + " - " + e.getMessage());
             }
-        }
+        });
     }
 }
