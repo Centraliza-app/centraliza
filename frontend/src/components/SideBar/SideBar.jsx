@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 // ALTERADO: Importado o ícone LayoutGrid para a nova página.
-import { ListTodo, Timer, CalendarDays, LogOut, HomeIcon, LayoutGrid } from 'lucide-react';
+import { ListTodo, Timer, CalendarDays, LogOut, HomeIcon, LayoutGrid, User } from 'lucide-react';
 import './SideBar-style.css'; 
 
 const Sidebar = ({ isAuthenticated, onLogout }) => {
@@ -13,13 +13,13 @@ const Sidebar = ({ isAuthenticated, onLogout }) => {
     navigate('/'); // Redireciona para a página inicial após o logout
   };
 
-  // ALTERADO: Adicionado o item 'Matriz de Eisenhower' à lista de navegação.
   const navItems = [
     { name: 'Home', path: '/', icon: HomeIcon, requiresAuth: true },
     { name: 'Tarefas', path: '/tarefas', icon: ListTodo, requiresAuth: true },
     { name: 'Pomodoro', path: '/pomodoro', icon: Timer, requiresAuth: true },
     { name: 'Calendário', path: '/calendario', icon: CalendarDays, requiresAuth: true },
     { name: 'Matriz', path: '/matriz-eisenhower', icon: LayoutGrid, requiresAuth: true },
+    { name: 'Perfil', path: '/perfil', icon: User, requiresAuth: true },
   ];
 
   return (
