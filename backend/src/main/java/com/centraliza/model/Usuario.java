@@ -34,4 +34,15 @@ public class Usuario {
 
     @NotBlank
     private String senha;
+
+    @Column(name = "notificar", nullable = false)
+    private Boolean notificar = Boolean.TRUE;
+    @PrePersist
+    public void prePersist() {
+        if (notificar == null) {
+            notificar = Boolean.TRUE;
+        }
+}
+
+
 }
