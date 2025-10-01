@@ -39,6 +39,7 @@ public class SecurityConfig {
                         .requestMatchers(EndpointRequest.to("health")).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/login", "/usuarios/registrar").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/usuarios/ativar-conta").permitAll()
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
@@ -55,7 +56,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of(
             "http://localhost:3000",
             "http://localhost:3001",
-            "https://centraliza-frontend-hkfn.onrender.com"
+            "https://centraliza-frontend.onrender.com"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
