@@ -29,9 +29,8 @@ public class NotificationService {
         System.out.println("Verificando tarefas atrasadas...");
 
         List<Tarefa> overdueTasks = tarefaRepository.findAllOverdueAndNotCompleted(
-        LocalDate.now(),
-        Status.CONCLUIDO
-        );
+                LocalDate.now(),
+                Status.CONCLUIDO);
 
         if (overdueTasks.isEmpty()) {
             System.out.println("Nenhuma tarefa atrasada encontrada.");
@@ -40,14 +39,16 @@ public class NotificationService {
 
         System.out.println("Encontradas " + overdueTasks.size() + " tarefas atrasadas. Preparando e-mails agrupados por usuário...");
 
-        // Agrupa as tarefas em atraso por usuário
         Map<Usuario, List<Tarefa>> tarefasPorUsuario = overdueTasks.stream()
                 .collect(Collectors.groupingBy(Tarefa::getUsuario));
 
-        // Envia UM e-mail por usuário com a lista de atrasos
         tarefasPorUsuario.forEach((usuario, tarefasDoUsuario) -> {
+            if (usuario.getNotificar() == null || !usuario.getNotificar()) {
+                System.out.println("Usuário " + usuario.getUsuario() + " optou por não receber notificações. Pulando envio.");
+                return; // Pula para o próximo usuário do loop
+            }
+
             try {
-                // Regras de destinatário (mantém seu redirecionamento para admin)
                 String recipientEmail;
                 if ("admin".equals(usuario.getUsuario())) {
                     recipientEmail = "centralizaifsp@gmail.com";
@@ -56,7 +57,6 @@ public class NotificationService {
                     recipientEmail = usuario.getEmail();
                 }
 
-                // Se não houver e-mail, apenas registra e segue
                 if (recipientEmail == null || recipientEmail.isBlank()) {
                     System.err.println("Usuário sem e-mail cadastrado: " + usuario.getUsuario() + ". Ignorando envio.");
                     return;
@@ -66,7 +66,6 @@ public class NotificationService {
                         ? usuario.getNome()
                         : usuario.getUsuario();
 
-                // Chama o novo método que envia UM e-mail com TODAS as tarefas em atraso do usuário
                 emailService.sendOverdueTasksSummary(recipientEmail, userName, tarefasDoUsuario);
 
                 System.out.println("E-mail de resumo enviado para: " + recipientEmail

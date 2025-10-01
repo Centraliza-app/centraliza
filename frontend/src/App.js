@@ -14,6 +14,7 @@ import EisenhowerMatrix from './pages/EisenhowerMatrix/EisenhowerMatrix';
 import { login, logout, listarTarefas } from './services/apiService';
 import ProtectedRoute from "./components/ProtectedRoute";
 import SideLayout from './components/SideLayout/SideLayout';
+import Perfil from './pages/Perfil/Perfil';
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('authToken'));
@@ -112,6 +113,17 @@ const App = () => {
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <SideLayout isAuthenticated={isAuthenticated} onLogout={handleLogout}>
                 <EisenhowerMatrix />
+              </SideLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/perfil"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <SideLayout isAuthenticated={isAuthenticated} onLogout={handleLogout}>
+                <Perfil />
               </SideLayout>
             </ProtectedRoute>
           }

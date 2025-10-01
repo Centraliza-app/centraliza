@@ -1,0 +1,105 @@
+.perfil-container {
+    max-width: 700px;
+    margin: 2rem auto;
+    padding: 1rem;
+}
+
+.perfil-container h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #1a237e;
+}
+
+.perfil-card {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+}
+
+.perfil-card h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.form-group-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group-checkbox input[type="checkbox"] {
+    width: auto;
+}
+
+.form-group-checkbox label {
+    margin-bottom: 0;
+    font-weight: normal;
+}
+
+.perfil-info-readonly {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 1rem;
+}
+
+.button-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.error-message {
+    color: #c62828;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.success-message {
+    color: #28a745;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.delete-account p {
+    color: #555;
+    margin-bottom: 1rem;
+}
+
+.cta-button.danger {
+    background-color: #c62828;
+}
+
+.cta-button.danger:hover {
+    background-color: #b71c1c;
+}
+
+.cta-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}

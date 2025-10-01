@@ -1,11 +1,18 @@
 package com.centraliza.service;
 
+import com.centraliza.dto.PasswordChangeDTO;
+import com.centraliza.dto.PerfilDTO;
+
 import com.centraliza.dto.UsuarioDTO;
 import com.centraliza.model.Usuario;
 import com.centraliza.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class UsuarioService {
@@ -32,11 +39,43 @@ public class UsuarioService {
         novoUsuario.setEmail(usuarioDTO.email());
         novoUsuario.setSenha(passwordEncoder.encode(usuarioDTO.senha()));
 
+        // O valor padrão de 'notificar' já é TRUE no modelo
+
         Usuario usuarioSalvo = usuarioRepository.save(novoUsuario);
 
-        // Enviar e-mail de boas-vindas
         emailService.sendWelcomeEmail(usuarioSalvo);
 
         return usuarioSalvo;
+    }
+
+    public Optional<Usuario> getUsuarioLogado() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username;
+        if (principal instanceof UserDetails) {
+            username = ((UserDetails) principal).getUsername();
+        } else {
+            username = principal.toString();
+        }
+        return usuarioRepository.findByUsuario(username);
+    }
+
+    public Usuario atualizarPerfil(PerfilDTO perfilDTO) {
+        return getUsuarioLogado().map(usuario -> {
+            usuario.setNome(perfilDTO.nome());
+            usuario.setSobrenome(perfilDTO.sobrenome());
+            usuario.setNotificar(perfilDTO.notificar());
+            return usuarioRepository.save(usuario);
+        }).orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+    }
+
+    public void alterarSenha(PasswordChangeDTO passwordChangeDTO) {
+        Usuario usuario = getUsuarioLogado().orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+
+        if (!passwordEncoder.matches(passwordChangeDTO.senhaAtual(), usuario.getSenha())) {
+            throw new RuntimeException("A senha atual está incorreta.");
+        }
+
+        usuario.setSenha(passwordEncoder.encode(passwordChangeDTO.novaSenha()));
+        usuarioRepository.save(usuario);
     }
 }

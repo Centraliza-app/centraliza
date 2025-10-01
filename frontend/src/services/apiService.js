@@ -88,6 +88,12 @@ export const atualizarSubtarefa = (tarefaId, subId, dados) => api.put(`/tarefas/
 export const deletarSubtarefa = (tarefaId, subId) => api.delete(`/tarefas/${tarefaId}/subtarefas/${subId}`);
 export const criarPomodoroSession = (dados) => api.post(`/pomodoro-sessions`, dados);
 
+/**
+ * Funções para interagir com o perfil do usuário.
+ */
+export const getPerfil = () => api.get('/usuarios/perfil');
+export const atualizarPerfil = (dados) => api.put('/usuarios/perfil', dados);
+export const alterarSenha = (dados) => api.post('/usuarios/alterar-senha', dados);
 
 // Exporta a instância do api caso precise em outros lugares
 export default api;
