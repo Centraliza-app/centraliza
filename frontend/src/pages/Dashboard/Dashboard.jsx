@@ -11,7 +11,7 @@ import OverdueTasksModal from '../../components/Dashboard/OverdueTasksModal';
 import ChartCard from '../../components/Dashboard/ChartCard';
 import ChartTypeToggle from '../../components/Dashboard/ChartTypeToggle';
 
-import { Bar, Doughnut } from 'react-chartjs-2';
+import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import { Chart as ChartJS } from 'chart.js/auto';
 
 const Dashboard = () => {
@@ -23,6 +23,18 @@ const Dashboard = () => {
     overdueTasks: 0,
     upcomingTasks: [],
     overdueTasksList: [],
+  });
+
+  const [metricas, setMetricas] = useState({
+    taxaAtraso: 0,
+    conclusoesNaSemana: 0,
+    tempoMedioConclusao: 0,
+    distribuicaoPrioridade: {
+      baixa: 0,
+      media: 0,
+      alta: 0
+    },
+    horariosProdutivos: Array(24).fill(0)
   });
 
   const [activeChart, setActiveChart] = useState('doughnut');
@@ -130,6 +142,88 @@ const Dashboard = () => {
           ],
         }));
 
+        // Cálculo das novas métricas
+
+        const tarefasConcluidas = tarefas.filter(t => t.status === 'CONCLUÍDO');
+
+        // 1. Taxa de Atraso (dataConclusao > dataFim)
+        const tarefasAtrasadas = tarefasConcluidas.filter(t => {
+          if (!t.dataFim || !t.dataConclusao) {
+            return false;
+          }
+
+          const dataPrevista = new Date(t.dataFim + 'T23:59:59');
+          const dataReal = new Date(t.dataConclusao + 'T23:59:59');
+          
+          return dataReal > dataPrevista;
+        });
+        
+        const taxaAtraso = tarefasConcluidas.length > 0
+          ? ((tarefasAtrasadas.length / tarefasConcluidas.length) * 100).toFixed(1)
+          : 0;
+
+        // 2. Conclusões na semana (usando dataConclusao)
+        const umaSemanaAtras = new Date();
+        umaSemanaAtras.setDate(umaSemanaAtras.getDate() - 7);
+        umaSemanaAtras.setHours(0, 0, 0, 0);
+        
+        const fimHoje = new Date();
+        fimHoje.setHours(23, 59, 59, 999);
+        
+        const conclusoesNaSemana = tarefasConcluidas.filter(t => {
+          if (!t.dataConclusao) return false;
+          
+          const dataConclusao = new Date(t.dataConclusao);
+          dataConclusao.setHours(
+            t.horaConclusao ? parseInt(t.horaConclusao.split(':')[0]) : 0,
+            t.horaConclusao ? parseInt(t.horaConclusao.split(':')[1]) : 0,
+            0, 0
+          );
+          
+          return dataConclusao >= umaSemanaAtras && dataConclusao <= fimHoje;
+        }).length;
+
+        // 3. Tempo Médio de Conclusão (dataInicio -> dataConclusao)
+        const tarefasComDatas = tarefasConcluidas.filter(t => t.dataInicio && t.dataConclusao);
+        
+        const tempoMedioConclusao = tarefasComDatas.length > 0
+          ? (
+              tarefasComDatas.reduce((acc, t) => {
+                const inicio = new Date(t.dataInicio);
+                const conclusao = new Date(t.dataConclusao);
+                const diffDias = (conclusao - inicio) / (1000 * 60 * 60 * 24);
+                return acc + diffDias;
+              }, 0) / tarefasComDatas.length
+            ).toFixed(1)
+          : 0;
+
+        // 4. Distribuição por Prioridade (baseado na Matriz de Eisenhower)
+        const distribuicaoPrioridade = {
+          alta: tarefas.filter(t => t.urgente === true).length,  // URGENTE
+          media: tarefas.filter(t => t.urgente === false && t.importante === true).length,  // IMPORTANTE mas não urgente
+          baixa: tarefas.filter(t => t.urgente === false && t.importante === false).length  // Nem urgente nem importante
+        };
+
+        // 5. Horários mais produtivos (baseado na dataConclusao)
+        const horariosProdutivos = Array(24).fill(0);
+        
+        tarefasConcluidas.forEach(t => {
+          if (t.dataConclusao) {
+            const dataConclusao = new Date(t.dataConclusao);
+            const hora = dataConclusao.getHours();
+            horariosProdutivos[hora]++;
+          }
+        });
+
+        // Atualizar estados
+        setMetricas({
+          taxaAtraso,
+          conclusoesNaSemana,
+          tempoMedioConclusao,  // já está formatado com toFixed(1)
+          distribuicaoPrioridade,
+          horariosProdutivos
+        });
+
         setDashboardData({
           totalTasks: tarefas.length,
           completedTasks: concluidas,
@@ -170,6 +264,82 @@ const Dashboard = () => {
           onListClick={handleOpenModal} 
         />
         <UpcomingTasksCard tarefas={dashboardData.upcomingTasks} />
+        
+        {/* Taxa de Atraso */}
+        <InfoCard 
+          titulo="Taxa de Atraso" 
+          valor={`${metricas.taxaAtraso}%`}
+          isWarning={metricas.taxaAtraso > 20}
+          descricao="Porcentagem de tarefas entregues após o prazo"
+        />
+
+        {/* Conclusões na Semana */}
+        <InfoCard 
+          titulo="Conclusões na Semana" 
+          valor={metricas.conclusoesNaSemana}
+          descricao="Tarefas concluídas nos últimos 7 dias"
+        />
+
+        {/* Tempo Médio de Conclusão */}
+        <InfoCard 
+          titulo="Tempo Médio de Conclusão" 
+          valor={`${metricas.tempoMedioConclusao} dias`}
+          descricao="Tempo médio para concluir uma tarefa"
+        />
+
+        {/* Distribuição por Prioridade */}
+        <ChartCard
+          title="Distribuição por Prioridade"
+          subtitle="Baseado na Matriz de Eisenhower"
+        >
+          <Doughnut 
+            data={{
+              labels: ['Urgente', 'Importante', 'Normal'],
+              datasets: [{
+                data: [
+                  metricas.distribuicaoPrioridade.alta,
+                  metricas.distribuicaoPrioridade.media,
+                  metricas.distribuicaoPrioridade.baixa
+                ],
+                backgroundColor: ['#dc3545', '#ffc107', '#28a745']
+              }]
+            }}
+            options={doughnutOptions}
+          />
+        </ChartCard>
+
+        {/* Horários Mais Produtivos */}
+        <ChartCard
+          title="Horários Mais Produtivos"
+        >
+          <Line 
+            data={{
+              labels: Array.from({length: 24}, (_, i) => `${i}h`),
+              datasets: [{
+                label: 'Conclusões',
+                data: metricas.horariosProdutivos,
+                borderColor: '#2196F3',
+                tension: 0.3,
+                fill: true,
+                backgroundColor: 'rgba(33, 150, 243, 0.1)'
+              }]
+            }}
+            options={{
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false }
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: { stepSize: 1 }
+                }
+              }
+            }}
+          />
+        </ChartCard>
+
         <ChartCard
           title="Composição das Subtarefas"
           controls={

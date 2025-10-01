@@ -1,8 +1,11 @@
 import axios from 'axios';
 
-// Cria uma instância base do Axios
+// Cria uma instância base do Axios, utilizando a URL da API definida nas variáveis de ambiente
 const api = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: process.env.REACT_APP_API_URL,
+  headers: {
+    'Content-Type': 'application/json'
+  }
 });
 
 // Interceptor para adicionar o token em todas as requisições
@@ -11,6 +14,8 @@ api.interceptors.request.use(async (config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  // Garantir que Content-Type seja sempre application/json
+  config.headers['Content-Type'] = 'application/json';
   return config;
 });
 
@@ -49,6 +54,16 @@ export const logout = () => {
   localStorage.removeItem('nomeUsuario');
 };
 
+export const registrarUsuario = async (dados) => {
+  try {
+    const response = await api.post('/usuarios/registrar', dados);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data || 'Erro ao registrar usuário');
+  }
+};
+
+
 /**
  * Funções para interagir com as tarefas.
  */
@@ -67,12 +82,10 @@ export const criarSubtarefa = (tarefaId, dados) =>
 // Função para listar as subtarefas de uma tarefa específica
 export const listarSubtarefasPorTarefa = (tarefaId) => api.get(`/tarefas/${tarefaId}/subtarefas`);
 
+
 // Outros métodos à testar ou implementar depois:
 export const atualizarSubtarefa = (tarefaId, subId, dados) => api.put(`/tarefas/${tarefaId}/subtarefas/${subId}`, dados);
 export const deletarSubtarefa = (tarefaId, subId) => api.delete(`/tarefas/${tarefaId}/subtarefas/${subId}`);
-
-// Funções para interagir com as sessões Pomodoro
-export const listarPomodoroSessionsPorTarefa = (tarefaId) => api.get(`/pomodoro-sessions/tarefa/${tarefaId}`);
 export const criarPomodoroSession = (dados) => api.post(`/pomodoro-sessions`, dados);
 
 /**

@@ -5,7 +5,7 @@ import EditarTarefaForm from './EditarTarefaForm';
 import { listarSubtarefasPorTarefa, deletarTarefa } from '../services/apiService';
 
 const TarefaListView = ({ tarefas, onTarefaDeletada, onTarefaAtualizada }) => {
-  const [showSubFor, setShowSubFor] = useState(null);       // Controla expansão da lista
+  const [showSubFor, setShowSubFor] = useState(null);
   const [subtarefas, setSubtarefas] = useState([]);
   const [loadingSub, setLoadingSub] = useState(false);
   const [tarefaParaEditar, setTarefaParaEditar] = useState(null);
@@ -48,35 +48,67 @@ const TarefaListView = ({ tarefas, onTarefaDeletada, onTarefaAtualizada }) => {
     <>
       <ul className="tarefa-lista">
         {tarefas.map((tarefa) => (
-          <li key={tarefa.id} className="tarefa-item">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
-              <div>
-                <strong>{tarefa.nome}</strong> – {tarefa.descricao}<br />
-                Início: {tarefa.dataInicio} | Fim: {tarefa.dataFim} | Status: {tarefa.status}
-                
-                <div className="task-tags-container">
-                  {tarefa.urgente && <span className="task-tag urgent">Urgente</span>}
-                  {tarefa.importante && <span className="task-tag important">Importante</span>}
+          <li 
+            key={tarefa.id} 
+            className="tarefa-item"
+            style={{
+              backgroundColor: '#fff',
+              transition: 'background-color 0.2s ease'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.03)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+          >
+            <div 
+              onClick={() => setShowSubFor(showSubFor === tarefa.id ? null : tarefa.id)}
+              style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'flex-start', 
+                flexWrap: 'wrap',
+                cursor: 'pointer',
+                position: 'relative',
+                padding: '10px'
+              }}
+            >
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div
+                    style={{
+                      transform: `rotate(${showSubFor === tarefa.id ? '180deg' : '0deg'})`,
+                      transition: 'transform 0.3s ease',
+                      display: 'inline-block',
+                      color: '#666'
+                    }}
+                  >
+                    ▼
+                  </div>
+                  <strong>{tarefa.nome}</strong>
+                </div>
+                <div style={{ marginLeft: '24px' }}>
+                  {tarefa.descricao}<br />
+                  Início: {tarefa.dataInicio} | Fim: {tarefa.dataFim} | Status: {tarefa.status}
+                  
+                  <div className="task-tags-container">
+                    {tarefa.urgente && <span className="task-tag urgent">Urgente</span>}
+                    {tarefa.importante && <span className="task-tag important">Importante</span>}
+                  </div>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: '10px' }}>
+              <div 
+                style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: '10px' }}
+                onClick={(e) => e.stopPropagation()} // Previne que os cliques nos botões disparem a expansão
+              >
                 <Link to={`/kanban/${tarefa.id}`} className="cta-button small">Kanban</Link>
                 <button
                   className="cta-button small"
-                  onClick={() => setShowSubFor(showSubFor === tarefa.id ? null : tarefa.id)}
-                >
-                  {showSubFor === tarefa.id ? 'Ocultar subtarefas' : 'Mostrar subtarefas'}
-                </button>
-                <button
-                  className="cta-button small"
-                  style={{ backgroundColor: '#1E88E5' }} // Cor azul para edição
-                  onClick={() => setTarefaParaEditar(tarefa)} // Define a tarefa a ser editada, abrindo o modal
+                  style={{ backgroundColor: '#1E88E5' }}
+                  onClick={() => setTarefaParaEditar(tarefa)}
                 >
                   Editar
                 </button>
                 <button
                   className="cta-button small"
-                  style={{ backgroundColor: '#c62828' }} // Cor vermelha para indicar perigo
+                  style={{ backgroundColor: '#c62828' }}
                   onClick={() => handleDeletarTarefa(tarefa.id)}
                 >
                   Excluir
@@ -84,11 +116,17 @@ const TarefaListView = ({ tarefas, onTarefaDeletada, onTarefaAtualizada }) => {
               </div>
             </div>
 
-            {/* Animação de expansão */}
-            <div className={`expandable ${showSubFor === tarefa.id ? 'open' : ''}`}>
+            <div style={{
+              overflow: 'hidden',
+              maxHeight: showSubFor === tarefa.id ? '500px' : '0',
+              opacity: showSubFor === tarefa.id ? 1 : 0,
+              transition: 'all 0.3s ease-in-out',
+              marginLeft: '34px',
+              paddingRight: '10px'
+            }}>
               {showSubFor === tarefa.id && (
-                <>
-                  <h4 style={{ marginTop: 12 }}>Subtarefas</h4>
+                <div style={{ padding: '10px 0' }}>
+                  <h4 style={{ marginBottom: '10px' }}>Subtarefas</h4>
                   {loadingSub ? (
                     <p>Carregando subtarefas...</p>
                   ) : subtarefas.length === 0 ? (
@@ -102,7 +140,7 @@ const TarefaListView = ({ tarefas, onTarefaDeletada, onTarefaAtualizada }) => {
                       ))}
                     </ul>
                   )}
-                </>
+                </div>
               )}
             </div>
           </li>

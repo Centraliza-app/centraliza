@@ -1,0 +1,37 @@
+services:
+  # Serviço do Backend (Java/Spring Boot)
+  - type: web
+    name: centraliza-backend
+    env: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    # ADICIONE ESTA SEÇÃO DE HEALTH CHECK
+    healthCheck:
+      path: /actuator/health
+      initialDelaySeconds: 30 # Aumenta o tempo inicial antes da primeira verificação
+    envVars:
+      - key: FRONTEND_URL
+        value: https://centraliza-frontend.onrender.com
+      - key: API_SECURITY_TOKEN_SECRET
+        generateValue: true
+
+  # Serviço do Frontend (React)
+  - type: web
+    name: centraliza-frontend
+    env: docker
+    plan: free
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://centraliza-backend.onrender.com
+      - key: DISABLE_ESLINT_PLUGIN
+        value: 'true'
+
+databases:
+  # Definição do banco de dados PostgreSQL
+  - name: db_centraliza
+    databaseName: db_centraliza
+    user: db_centraliza_user
+    plan: free

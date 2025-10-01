@@ -2,6 +2,7 @@ package com.centraliza.service;
 
 import com.centraliza.dto.PasswordChangeDTO;
 import com.centraliza.dto.PerfilDTO;
+
 import com.centraliza.dto.UsuarioDTO;
 import com.centraliza.model.Usuario;
 import com.centraliza.repository.UsuarioRepository;
@@ -37,6 +38,7 @@ public class UsuarioService {
         novoUsuario.setSobrenome(usuarioDTO.sobrenome());
         novoUsuario.setEmail(usuarioDTO.email());
         novoUsuario.setSenha(passwordEncoder.encode(usuarioDTO.senha()));
+
         // O valor padrão de 'notificar' já é TRUE no modelo
 
         Usuario usuarioSalvo = usuarioRepository.save(novoUsuario);
