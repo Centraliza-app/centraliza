@@ -40,7 +40,6 @@ public class EmailService {
             throw e;
         }
     }
-
     public void sendWelcomeEmail(Usuario usuario) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
