@@ -143,61 +143,74 @@ const Dashboard = () => {
         }));
 
         // Cálculo das novas métricas
+
         const tarefasConcluidas = tarefas.filter(t => t.status === 'CONCLUÍDO');
+
+        // 1. Taxa de Atraso (dataConclusao > dataFim)
+        const tarefasAtrasadas = tarefasConcluidas.filter(t => {
+          if (!t.dataFim || !t.dataConclusao) {
+            return false;
+          }
+
+          const dataPrevista = new Date(t.dataFim + 'T23:59:59');
+          const dataReal = new Date(t.dataConclusao + 'T23:59:59');
+          
+          return dataReal > dataPrevista;
+        });
         
-        // 1. Taxa de Atraso
         const taxaAtraso = tarefasConcluidas.length > 0
-          ? (tarefasConcluidas.filter(t => {
-              const dataFim = new Date(t.dataFim + 'T00:00:00');
-              const dataAtual = new Date();
-              return dataAtual > dataFim;
-            }).length / tarefasConcluidas.length * 100).toFixed(1)
+          ? ((tarefasAtrasadas.length / tarefasConcluidas.length) * 100).toFixed(1)
           : 0;
 
-        // 2. Conclusões na semana
-        const umaSemanaAtras = new Date(hoje);
-        umaSemanaAtras.setDate(hoje.getDate() - 7);
+        // 2. Conclusões na semana (usando dataConclusao)
+        const umaSemanaAtras = new Date();
+        umaSemanaAtras.setDate(umaSemanaAtras.getDate() - 7);
+        umaSemanaAtras.setHours(0, 0, 0, 0);
+        
+        const fimHoje = new Date();
+        fimHoje.setHours(23, 59, 59, 999);
+        
         const conclusoesNaSemana = tarefasConcluidas.filter(t => {
-          const dataAtual = new Date();
-          return dataAtual >= umaSemanaAtras && dataAtual <= hoje;
+          if (!t.dataConclusao) return false;
+          
+          const dataConclusao = new Date(t.dataConclusao);
+          dataConclusao.setHours(
+            t.horaConclusao ? parseInt(t.horaConclusao.split(':')[0]) : 0,
+            t.horaConclusao ? parseInt(t.horaConclusao.split(':')[1]) : 0,
+            0, 0
+          );
+          
+          return dataConclusao >= umaSemanaAtras && dataConclusao <= fimHoje;
         }).length;
 
-        // 3. Tempo Médio de Conclusão
-        const tempoMedioConclusao = tarefasConcluidas.length > 0
-          ? tarefasConcluidas.reduce((acc, t) => {
-              console.log('Analisando tarefa:', t);
-              const inicio = t.dataInicio ? new Date(t.dataInicio + 'T00:00:00') : null;
-              const fim = t.dataFim ? new Date(t.dataFim + 'T00:00:00') : null;
-              
-              if (!inicio || !fim) {
-                console.log('Datas da tarefa:', {
-                  id: t.id,
-                  inicio: t.dataInicio,
-                  fim: t.dataFim,
-                  status: t.status
-                });
-                return acc;
-              }
-
-              const diffDias = Math.max(0, (fim - inicio) / (1000 * 60 * 60 * 24));
-              console.log(`Tarefa ${t.id}: ${diffDias} dias (${t.dataInicio} até ${t.dataFim})`);
-              
-              return acc + diffDias;
-            }, 0) / tarefasConcluidas.filter(t => t.dataInicio && t.dataFim).length || 0
+        // 3. Tempo Médio de Conclusão (dataInicio -> dataConclusao)
+        const tarefasComDatas = tarefasConcluidas.filter(t => t.dataInicio && t.dataConclusao);
+        
+        const tempoMedioConclusao = tarefasComDatas.length > 0
+          ? (
+              tarefasComDatas.reduce((acc, t) => {
+                const inicio = new Date(t.dataInicio);
+                const conclusao = new Date(t.dataConclusao);
+                const diffDias = (conclusao - inicio) / (1000 * 60 * 60 * 24);
+                return acc + diffDias;
+              }, 0) / tarefasComDatas.length
+            ).toFixed(1)
           : 0;
 
-        // 4. Distribuição por Prioridade
+        // 4. Distribuição por Prioridade (baseado na Matriz de Eisenhower)
         const distribuicaoPrioridade = {
-          baixa: tarefas.filter(t => t.prioridade === 'BAIXA').length,
-          media: tarefas.filter(t => t.prioridade === 'MEDIA').length,
-          alta: tarefas.filter(t => t.prioridade === 'ALTA').length
+          alta: tarefas.filter(t => t.urgente === true).length,  // URGENTE
+          media: tarefas.filter(t => t.urgente === false && t.importante === true).length,  // IMPORTANTE mas não urgente
+          baixa: tarefas.filter(t => t.urgente === false && t.importante === false).length  // Nem urgente nem importante
         };
 
-        // 5. Horários mais produtivos
+        // 5. Horários mais produtivos (baseado na dataConclusao)
         const horariosProdutivos = Array(24).fill(0);
+        
         tarefasConcluidas.forEach(t => {
-          if (t.dataFim) {
-            const hora = new Date(t.dataFim + 'T00:00:00').getHours();
+          if (t.dataConclusao) {
+            const dataConclusao = new Date(t.dataConclusao);
+            const hora = dataConclusao.getHours();
             horariosProdutivos[hora]++;
           }
         });
@@ -206,7 +219,7 @@ const Dashboard = () => {
         setMetricas({
           taxaAtraso,
           conclusoesNaSemana,
-          tempoMedioConclusao: tempoMedioConclusao.toFixed(1),
+          tempoMedioConclusao,  // já está formatado com toFixed(1)
           distribuicaoPrioridade,
           horariosProdutivos
         });
@@ -277,10 +290,11 @@ const Dashboard = () => {
         {/* Distribuição por Prioridade */}
         <ChartCard
           title="Distribuição por Prioridade"
+          subtitle="Baseado na Matriz de Eisenhower"
         >
           <Doughnut 
             data={{
-              labels: ['Alta', 'Média', 'Baixa'],
+              labels: ['Urgente', 'Importante', 'Normal'],
               datasets: [{
                 data: [
                   metricas.distribuicaoPrioridade.alta,
