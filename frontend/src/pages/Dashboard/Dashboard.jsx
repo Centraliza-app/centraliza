@@ -10,6 +10,8 @@ import InfoCard from '../../components/Dashboard/InfoCard';
 import OverdueTasksModal from '../../components/Dashboard/OverdueTasksModal';
 import ChartCard from '../../components/Dashboard/ChartCard';
 import ChartTypeToggle from '../../components/Dashboard/ChartTypeToggle';
+import DeadlineHeatmap from '../../components/Dashboard/DeadlineHeatmap';
+import PomodoroMetrics from '../../components/Dashboard/PomodoroMetrics';
 
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import { Chart as ChartJS } from 'chart.js/auto';
@@ -54,6 +56,7 @@ const Dashboard = () => {
 
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [tarefas, setTarefas] = useState([]);
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
@@ -84,7 +87,8 @@ const Dashboard = () => {
       setLoading(true);
       try {
         const response = await listarTarefas();
-        const tarefas = response.data;
+        setTarefas(response.data);
+        const tarefasData = response.data;
 
         // --- Lógica de Tarefas Principais ---
         const hoje = new Date();
@@ -92,14 +96,14 @@ const Dashboard = () => {
         const limiteProximas = new Date(hoje);
         limiteProximas.setDate(hoje.getDate() + 7);
 
-        const concluidas = tarefas.filter(t => t.status === 'CONCLUÍDO').length;
+        const concluidas = tarefasData.filter(t => t.status === 'CONCLUÍDO').length;
         
-        const listaDeAtrasadas = tarefas.filter(t => {
+        const listaDeAtrasadas = tarefasData.filter(t => {
             const dataFim = new Date(t.dataFim + 'T00:00:00');
             return dataFim < hoje && t.status !== 'CONCLUÍDO';
         });
         
-        const proximas = tarefas
+        const proximas = tarefasData
           .filter(t => {
             const dataFim = new Date(t.dataFim + 'T00:00:00');
             return t.status !== 'CONCLUÍDO' && dataFim >= hoje && dataFim <= limiteProximas;
@@ -114,7 +118,7 @@ const Dashboard = () => {
         let subtarefasConcluidas = 0;
 
         // Carrega subtarefas para todas as tarefas e soma os status
-        for (const tarefa of tarefas) {
+        for (const tarefa of tarefasData) {
           try {
             const resSub = await listarSubtarefasPorTarefa(tarefa.id);
             const subtarefas = resSub.data;
@@ -144,7 +148,7 @@ const Dashboard = () => {
 
         // Cálculo das novas métricas
 
-        const tarefasConcluidas = tarefas.filter(t => t.status === 'CONCLUÍDO');
+        const tarefasConcluidas = tarefasData.filter(t => t.status === 'CONCLUÍDO');
 
         // 1. Taxa de Atraso (dataConclusao > dataFim)
         const tarefasAtrasadas = tarefasConcluidas.filter(t => {
@@ -266,6 +270,8 @@ const Dashboard = () => {
         <UpcomingTasksCard tarefas={dashboardData.upcomingTasks} />
         
         {/* Taxa de Atraso */}
+        <PomodoroMetrics tarefas={tarefas} />
+        
         <InfoCard 
           titulo="Taxa de Atraso" 
           valor={`${metricas.taxaAtraso}%`}
@@ -345,7 +351,7 @@ const Dashboard = () => {
           controls={
             <ChartTypeToggle
               activeType={activeChart}
-              onTypeChange={setActiveChart} // Passa a função de mudar o estado
+              onTypeChange={setActiveChart}
             />
           }
         >
@@ -357,6 +363,15 @@ const Dashboard = () => {
             <Doughnut data={subtaskChartData} options={doughnutOptions} />
           )}
         </ChartCard>
+
+        <div className="heatmap-container">
+          <ChartCard
+            title="Planejado vs Realizado"
+            subtitle="Status das tarefas com base na data planejada"
+          >
+            <DeadlineHeatmap tarefas={tarefas} />
+          </ChartCard>
+        </div>
       </div>
       <OverdueTasksModal 
         isOpen={isModalOpen}

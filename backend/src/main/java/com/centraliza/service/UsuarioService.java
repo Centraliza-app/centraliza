@@ -2,7 +2,6 @@ package com.centraliza.service;
 
 import com.centraliza.dto.PasswordChangeDTO;
 import com.centraliza.dto.PerfilDTO;
-
 import com.centraliza.dto.UsuarioDTO;
 import com.centraliza.model.Usuario;
 import com.centraliza.repository.UsuarioRepository;
@@ -12,7 +11,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UsuarioService {
@@ -38,14 +39,31 @@ public class UsuarioService {
         novoUsuario.setSobrenome(usuarioDTO.sobrenome());
         novoUsuario.setEmail(usuarioDTO.email());
         novoUsuario.setSenha(passwordEncoder.encode(usuarioDTO.senha()));
+        novoUsuario.setEnabled(false); // A conta começa desativada
 
-        // O valor padrão de 'notificar' já é TRUE no modelo
+        String token = UUID.randomUUID().toString();
+        novoUsuario.setVerificationToken(token);
+        novoUsuario.setTokenExpiration(LocalDateTime.now().plusHours(24)); // Token válido por 24h
 
         Usuario usuarioSalvo = usuarioRepository.save(novoUsuario);
 
-        emailService.sendWelcomeEmail(usuarioSalvo);
+        emailService.sendActivationEmail(usuarioSalvo, token);
 
         return usuarioSalvo;
+    }
+
+    public void ativarConta(String token) {
+        Usuario usuario = usuarioRepository.findByVerificationToken(token)
+                .orElseThrow(() -> new RuntimeException("Token de verificação inválido."));
+
+        if (usuario.getTokenExpiration().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Token de verificação expirado.");
+        }
+
+        usuario.setEnabled(true);
+        usuario.setVerificationToken(null);
+        usuario.setTokenExpiration(null);
+        usuarioRepository.save(usuario);
     }
 
     public Optional<Usuario> getUsuarioLogado() {

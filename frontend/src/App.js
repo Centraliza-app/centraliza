@@ -15,6 +15,7 @@ import { login, logout, listarTarefas } from './services/apiService';
 import ProtectedRoute from "./components/ProtectedRoute";
 import SideLayout from './components/SideLayout/SideLayout';
 import Perfil from './pages/Perfil/Perfil';
+import AtivarConta from './pages/AtivarConta/AtivarConta';
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('authToken'));
@@ -131,6 +132,7 @@ const App = () => {
         
         <Route path="/login" element={<Login onLogin={handleLogin}/>} />
         <Route path="/register" element={<Register />} />
+        <Route path="/ativar-conta" element={<AtivarConta />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>

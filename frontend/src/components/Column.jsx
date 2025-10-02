@@ -6,9 +6,22 @@ import SubtaskCard from './SubtarefaCard';
 const Column = ({ status, tasks, onDelete }) => {
   const { setNodeRef } = useDroppable({ id: status });
 
+  const getBackgroundColor = () => {
+    switch (status) {
+      case 'A FAZER':
+        return '#ffebee'; // Vermelho pastel
+      case 'EM EXECUÇÃO':
+        return '#fff8e1'; // Amarelo pastel
+      case 'CONCLUÍDO':
+        return '#e8f5e9'; // Verde pastel
+      default:
+        return '#f4f4f4'; // Cor padrão
+    }
+  };
+
   const columnStyle = {
     flex: 1,
-    background: '#f4f4f4',
+    background: getBackgroundColor(),
     borderRadius: 8,
     padding: 12,
     minHeight: 300,

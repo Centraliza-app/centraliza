@@ -95,13 +95,14 @@ const Pomodoro = () => {
 
     // Concluir e salvar o ciclo
     const handleConclude = async () => {
-        if (startTime && tarefaSelecionada) {
+        if (startTime && tarefaSelecionada && cycleCount > 0) {
             try {
+                const endTime = new Date();
                 await criarPomodoroSession({
                     tarefaId: tarefaSelecionada,
                     startTime: startTime.toISOString(),
-                    endTime: new Date().toISOString(),
-                    duration: workTime, // Salva a duração do tempo de trabalho
+                    endTime: endTime.toISOString(),
+                    duration: cycleCount * workTime // Duração baseada na quantidade de ciclos
                 });
                 alert('Sessão Pomodoro salva com sucesso!');
             } catch (error) {

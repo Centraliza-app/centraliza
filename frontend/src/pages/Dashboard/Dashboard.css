@@ -9,6 +9,31 @@
   gap: 1.5rem;
 }
 
+.heatmap-container {
+  height: 350px;
+  overflow: hidden;
+}
+
+.heatmap-container .info-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.heatmap-container .chart-container {
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.full-width {
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+}
+
+.full-width > div {
+  width: 100%;
+}
+
 /* Estilos para o InfoCard genérico */
 .info-card {
   background-color: #fff;
@@ -60,6 +85,18 @@
 
 .subtask-chart-card {
   grid-column: span 3;
+}
+
+.upcoming-tasks-card {
+  grid-column: span 3;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Ajuste para o componente de heatmap */
+.full-width .deadline-heatmap {
+  grid-column: span 3;
+  min-height: 200px;
 }
 
 /* Ajuste para telas menores (tablet e celular) */
