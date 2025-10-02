@@ -87,6 +87,13 @@ export const listarSubtarefasPorTarefa = (tarefaId) => api.get(`/tarefas/${taref
 export const atualizarSubtarefa = (tarefaId, subId, dados) => api.put(`/tarefas/${tarefaId}/subtarefas/${subId}`, dados);
 export const deletarSubtarefa = (tarefaId, subId) => api.delete(`/tarefas/${tarefaId}/subtarefas/${subId}`);
 export const criarPomodoroSession = (dados) => api.post(`/pomodoro-sessions`, dados);
+export const getPomodoroMetricsByTarefas = (tarefaId) => api.get(`/pomodoro-sessions/tarefa/${tarefaId}`);
+
+/**
+ * Funções para interagir com o perfil do usuário.
+ */
+export const listarPomodoroSessions = () => api.get('/pomodoro-sessions');
+export const getPomodoroMetrics = () => api.get('/pomodoro-sessions/metrics');
 
 /**
  * Funções para interagir com o perfil do usuário.
