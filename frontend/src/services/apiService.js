@@ -82,6 +82,10 @@ export const criarSubtarefa = (tarefaId, dados) =>
 // Função para listar as subtarefas de uma tarefa específica
 export const listarSubtarefasPorTarefa = (tarefaId) => api.get(`/tarefas/${tarefaId}/subtarefas`);
 
+//\ Função para criar as subtarefas com IA!
+export const sugerirSubtarefasComIA = (prompt) =>
+  api.post('/ai/subtarefas', { prompt });
+
 
 // Outros métodos à testar ou implementar depois:
 export const atualizarSubtarefa = (tarefaId, subId, dados) => api.put(`/tarefas/${tarefaId}/subtarefas/${subId}`, dados);
