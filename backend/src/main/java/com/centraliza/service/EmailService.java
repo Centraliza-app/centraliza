@@ -22,6 +22,9 @@ public class EmailService {
     @Value("${spring.mail.from}")
     private String fromEmail;
 
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
+
     public void sendOverdueTasksSummary(String to, String userName, List<Tarefa> tarefasEmAtraso) {
         if (tarefasEmAtraso == null || tarefasEmAtraso.isEmpty()) {
             return; // Não envia e-mail se não há tarefas atrasadas
@@ -66,21 +69,26 @@ public class EmailService {
             throw e; // Lança a exceção para que o NotificationService saiba que falhou
         }
     }
-    public void sendWelcomeEmail(Usuario usuario) {
+
+    public void sendActivationEmail(Usuario usuario, String token) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
             message.setTo(usuario.getEmail());
-            message.setSubject("Bem-vindo ao Centraliza!");
+            message.setSubject("Ative sua conta no Centraliza");
+
+            String activationUrl = frontendUrl + "/ativar-conta?token=" + token;
+
             message.setText(
                 "Olá " + usuario.getNome() + ",\n\n" +
-                "Seu cadastro no Centraliza foi realizado com sucesso!\n" +
-                "Acesse o site: https://centralizaa.com\n\n" +
+                "Bem-vindo ao Centraliza! Para ativar sua conta, por favor, clique no link abaixo:\n" +
+                activationUrl + "\n\n" +
+                "Se você não se cadastrou, por favor, ignore este e-mail.\n\n" +
                 "Atenciosamente,\nEquipe Centraliza"
             );
             mailSender.send(message);
         } catch (MailException e) {
-            System.err.println("### ERRO AO ENVIAR E-MAIL DE BOAS-VINDAS ###");
+            System.err.println("### ERRO AO ENVIAR E-MAIL DE ATIVAÇÃO ###");
             System.err.println(e.getMessage());
             throw e;
         }
