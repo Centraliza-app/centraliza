@@ -1,3 +1,5 @@
+// centraliza-app/centraliza/centraliza-mat-dev/frontend/src/components/ColumnWithAI.jsx
+
 import React, { useState } from "react";
 import Column from "./Column";
 import KanbanAiDialog from "./KanbanAiDialog";
@@ -14,11 +16,17 @@ export default function ColumnWithAI({
 
   const handleConfirm = async (items) => {
     for (const it of items) {
+      
+      // --- ALTERAÇÃO AQUI ---
+      // O backend espera 'subNome' e 'descricao', mas a IA retorna 'title' e 'description'.
+      // Mapeamos os nomes dos campos aqui antes de enviar para a API.
       await criarSubtarefa(parentTaskId, {
-        title: it.title,
-        description: it.description,
-        status: "A FAZER", // casa com suas colunas
+        subNome: it.title,       // <-- MUDANÇA: de 'title' para 'subNome'
+        descricao: it.description, // <-- MUDANÇA: de 'description' para 'descricao'
+        status: "A FAZER", 
       });
+      // --- FIM DA ALTERAÇÃO ---
+
     }
     setShowAi(false);
     onSubtasksCreated?.();
