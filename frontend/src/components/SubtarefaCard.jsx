@@ -28,10 +28,25 @@ const SubtarefaCard = ({ task, onDelete }) => {
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <div>
-        <strong>{task.subNome}</strong>
-        <div>{task.descricao}</div>
+
+      <div style={{ 
+        flex: 1, 
+        minWidth: 0, 
+        overflowWrap: 'break-word', // Quebra palavras longas
+        wordBreak: 'break-word' // Garante a quebra
+      }}>
+        <strong style={{ display: 'block' }}>{task.subNome}</strong>
+        
+        <div style={{ 
+          fontSize: '0.9em', 
+          color: '#555', 
+          whiteSpace: 'pre-wrap', // Permite quebra de linha e quebra de palavra
+          overflowWrap: 'break-word'
+        }}>
+          {task.descricao}
+        </div>
       </div>
+      
       <button
         onClick={(e) => {
             e.stopPropagation(); // Impede que o clique acione o drag
@@ -42,6 +57,7 @@ const SubtarefaCard = ({ task, onDelete }) => {
             background: 'none', border: 'none', color: '#888',
             fontSize: '24px', fontWeight: 'bold', cursor: 'pointer',
             padding: '0 5px', lineHeight: '1',
+            marginLeft: '8px'
         }}
       >
         &times;

@@ -13,11 +13,17 @@ const Login = ({onLogin}) => {
         setError('');
         setLoading(true);
         try {
-        // Chama a função de login que veio do App.js
-        await onLogin(username, password);
-        navigate('/'); // Redireciona para a página home após o login
+            await onLogin(username, password);
+            navigate('/');
         } catch (err) {
-            setError('Usuário ou senha inválidos.');
+            if (err.response && err.response.status === 401) {
+                setError('Usuário ou senha inválidos.');
+            } else if (err.response && err.response.status === 403) {
+                setError('Sua conta ainda não foi ativada. Verifique seu e-mail.');
+            }
+            else {
+                setError('Ocorreu um erro. Tente novamente.');
+            }
         } finally {
             setLoading(false);
         }

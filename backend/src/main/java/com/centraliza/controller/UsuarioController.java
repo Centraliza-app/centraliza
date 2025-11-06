@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/usuarios")
 @Tag(name = "Usuários", description = "Gerenciamento de Usuário")
-@SecurityRequirement(name = "bearerAuth")
 public class UsuarioController {
 
     @Autowired
@@ -34,7 +33,18 @@ public class UsuarioController {
         }
     }
 
+    @GetMapping("/ativar-conta")
+    public ResponseEntity<?> ativarConta(@RequestParam("token") String token) {
+        try {
+            usuarioService.ativarConta(token);
+            return ResponseEntity.ok("Conta ativada com sucesso!");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
     @GetMapping("/perfil")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<PerfilResponseDTO> getPerfilUsuario() {
         return usuarioService.getUsuarioLogado()
                 .map(usuario -> ResponseEntity.ok(new PerfilResponseDTO(usuario)))
@@ -42,6 +52,7 @@ public class UsuarioController {
     }
 
     @PutMapping("/perfil")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<PerfilResponseDTO> atualizarPerfilUsuario(@RequestBody @Valid PerfilDTO perfilDTO) {
         try {
             Usuario usuarioAtualizado = usuarioService.atualizarPerfil(perfilDTO);
@@ -52,6 +63,7 @@ public class UsuarioController {
     }
 
     @PostMapping("/alterar-senha")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<?> alterarSenha(@RequestBody @Valid PasswordChangeDTO passwordChangeDTO) {
         try {
             usuarioService.alterarSenha(passwordChangeDTO);
