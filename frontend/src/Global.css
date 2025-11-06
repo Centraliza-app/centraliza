@@ -239,6 +239,29 @@ body {
   margin: 0 auto; 
 }
 
+/* -----------------------------------------------------------------
+  INÍCIO DA ALTERAÇÃO (ADIÇÃO)
+  -----------------------------------------------------------------
+*/
+
+/* Estilo para centralizar .hero quando for a única coisa na página (Login, Register, etc.) */
+/* Isso não afetará a Home, pois a Home também tem um <header> (NavBar) */
+div#root > main.hero:only-child {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Centraliza verticalmente */
+  align-items: center;     /* Centraliza horizontalmente o conteúdo flex */
+  min-height: 100vh;
+  padding: 20px; /* Padding para telas pequenas */
+  width: 100%; /* Garante que o hero ocupe a largura */
+}
+
+/* -----------------------------------------------------------------
+  FIM DA ALTERAÇÃO (ADIÇÃO)
+  -----------------------------------------------------------------
+*/
+
+
 header { /* Se você tiver um header principal fora do sidebar */
   display: flex;
   justify-content: space-between;
@@ -297,12 +320,22 @@ header { /* Se você tiver um header principal fora do sidebar */
   background-color: #0039cb;
 }
 
+/* -----------------------------------------------------------------
+  INÍCIO DA ALTERAÇÃO (MODIFICAÇÃO)
+  -----------------------------------------------------------------
+*/
 .auth-form {
   display: flex;
   flex-direction: column;
   gap: 15px;
   margin: 20px 0;
+  width: 100%;     /* Adicionado */
+  max-width: 400px; /* Adicionado */
 }
+/* -----------------------------------------------------------------
+  FIM DA ALTERAÇÃO (MODIFICAÇÃO)
+  -----------------------------------------------------------------
+*/
 
 .auth-form input, select {
   padding: 12px;
