@@ -3,7 +3,7 @@ services:
   - type: web
     name: centraliza-backend
     env: docker
-    plan: free
+    plan: starter
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     # ADICIONE ESTA SEÇÃO DE HEALTH CHECK
