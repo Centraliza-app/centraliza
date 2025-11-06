@@ -48,14 +48,7 @@ const Login = ({onLogin}) => {
                 </button>
             </form>
             {error && <p style={{ color: 'red' }}>{error}</p>}
-            <p>ou continue com</p>
-
-            <div className="social-login">
-                <button className="cta-button social google">Google</button>
-                <button className="cta-button social facebook">Facebook</button>
-                <button className="cta-button social apple">Apple</button>
-            </div>
-
+            
             <p>Não tem uma conta? <a href="/register">Cadastre-se</a></p>
         </main>
     );

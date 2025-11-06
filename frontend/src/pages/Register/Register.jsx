@@ -48,14 +48,6 @@ const Register = () => {
             </form>
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
-            <p>ou cadastre-se com</p>
-
-            <div className="social-login">
-                <button className="cta-button social google">Google</button>
-                <button className="cta-button social facebook">Facebook</button>
-                <button className="cta-button social apple">Apple</button>
-            </div>
-
             <p>Já possui uma conta? <a href="/login">Entrar</a></p>
         </main>
     );

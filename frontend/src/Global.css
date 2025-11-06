@@ -331,38 +331,6 @@ header { /* Se você tiver um header principal fora do sidebar */
   box-shadow: 0 0 0 2px rgba(41, 98, 255, 0.25);
 }
 
-.social-login {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-}
-
-.social {
-  padding: 10px 20px;
-  font-weight: 500;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.95rem;
-}
-
-.social.google {
-  background-color: #db4437;
-  color: white;
-}
-
-.social.facebook {
-  background-color: #3b5998;
-  color: white;
-}
-
-.social.apple {
-  background-color: #000;
-  color: white;
-}
-
 /* Lista de tarefas */
 .tarefa-lista {
   list-style: none;
