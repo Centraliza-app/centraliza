@@ -1,16 +1,22 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { listarSubtarefasPorTarefa, deletarSubtarefa, atualizarSubtarefa, getTarefa } from '../services/apiService'; // 1. Importar getTarefa
+// 1. Importar criarSubtarefa e KanbanAiDialog
+import { 
+  listarSubtarefasPorTarefa, 
+  deletarSubtarefa, 
+  atualizarSubtarefa, 
+  getTarefa,
+  criarSubtarefa
+} from '../services/apiService'; 
 
 // dnd-kit
 import { DndContext, PointerSensor, useSensor, useSensors, closestCorners, DragOverlay } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 
-// import Column from '../components/Column';
 import ColumnWithAI from '../components/ColumnWithAI';
-
 import CriarSubtarefaForm from '../components/CriarSubtarefaForm';
 import SubtarefaCard from '../components/SubtarefaCard';
+import KanbanAiDialog from '../components/KanbanAiDialog';
 
 const statusList = ['A FAZER', 'EM EXECUÇÃO', 'CONCLUÍDO'];
 
@@ -19,10 +25,12 @@ const KanbanPage = () => {
   const navigate = useNavigate();
 
   const [subtarefas, setSubtarefas] = useState([]);
-  const [tarefaNome, setTarefaNome] = useState(''); // 2. Estado para o nome da tarefa
+  const [tarefaNome, setTarefaNome] = useState(''); 
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [activeTask, setActiveTask] = useState(null);
+  
+  const [showAiModal, setShowAiModal] = useState(false);
 
   const tasksByStatus = useMemo(() => {
     const grouped = {};
@@ -36,22 +44,19 @@ const KanbanPage = () => {
     return grouped;
   }, [subtarefas]);
 
-  // 3. Renomeado para carregarDados (plural)
   const carregarDados = React.useCallback(async () => {
     setLoading(true);
     try {
-      // Busca a tarefa principal e as subtarefas em paralelo
       const [tarefaRes, subtarefasRes] = await Promise.all([
         getTarefa(tarefaId),
         listarSubtarefasPorTarefa(tarefaId)
       ]);
       
-      setTarefaNome(tarefaRes.data.nome); // 4. Salva o nome da tarefa
+      setTarefaNome(tarefaRes.data.nome); 
       setSubtarefas(subtarefasRes.data);
 
     } catch (error) {
       console.error('Erro ao carregar dados do kanban:', error);
-      // Se a tarefa não for encontrada, talvez voltar
       if (error.response && error.response.status === 404) {
         alert("Tarefa não encontrada.");
         navigate('/tarefas');
@@ -62,7 +67,7 @@ const KanbanPage = () => {
   }, [tarefaId, navigate]);
 
   useEffect(() => {
-    carregarDados(); // 5. Chama a nova função
+    carregarDados();
   }, [tarefaId, carregarDados]);
 
   const handleDeleteSubtarefa = async (subtarefaId) => {
@@ -77,8 +82,24 @@ const KanbanPage = () => {
       }
     }
   };
+  
+  const handleAiConfirm = async (items) => {
+    try {
+      for (const it of items) {
+        await criarSubtarefa(tarefaId, {
+          subNome: it.title,
+          descricao: it.description,
+          status: "A FAZER", // Sempre cria em "A FAZER"
+        });
+      }
+      setShowAiModal(false);
+      carregarDados(); // Recarrega os dados após criar
+    } catch (error) {
+       console.error('Erro ao criar subtarefas com IA:', error);
+       alert('Ocorreu um erro ao salvar as subtarefas geradas.');
+    }
+  };
 
-  // dnd sensors
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
   );
@@ -102,27 +123,23 @@ const KanbanPage = () => {
     const overContainer = over.data.current?.sortable?.containerId || over.id;
 
     if (activeContainer !== overContainer) {
-      // mudança de coluna (status)
       const novoStatus = overContainer;
       const subtarefaArrastada = subtarefas.find(sub => sub.subId === activeId);
 
-      // 1) Atualiza UI
       setSubtarefas(prev =>
         prev.map(sub =>
           sub.subId === activeId ? { ...sub, status: novoStatus } : sub
         )
       );
 
-      // 2) Persiste no backend
       try {
         await atualizarSubtarefa(tarefaId, activeId, { ...subtarefaArrastada, status: novoStatus });
       } catch (error) {
         console.error('Erro ao atualizar subtarefa:', error);
         alert('Falha ao mover a subtarefa. Revertendo.');
-        carregarDados(); // 6. Atualiza para carregarDados
+        carregarDados(); 
       }
     } else {
-      // reordenação dentro da mesma coluna
       const tasksInContainer = tasksByStatus[activeContainer];
       const oldIndex = tasksInContainer.findIndex(t => t.subId === activeId);
       const newIndex = tasksInContainer.findIndex(t => t.subId === overId);
@@ -133,7 +150,6 @@ const KanbanPage = () => {
           ...prev.filter(t => t.status !== activeContainer),
           ...reorderedTasks
         ]);
-        // Se quiser, salve a nova ordem no backend aqui
       }
     }
   };
@@ -142,18 +158,27 @@ const KanbanPage = () => {
     <>
       <div className="tarefas-container">
         <div className="tarefas-header">
-           {/* 7. Mostra o nome da tarefa no título */ }
           <h1 className="tarefas-title">Kanban: {tarefaNome || '...'}</h1>
-          <div>
+          
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button 
+              className="cta-button" 
+              onClick={() => setShowAiModal(true)}
+              disabled={!tarefaNome}
+              title={!tarefaNome ? "Carregando nome da tarefa..." : "Gerar subtarefas com IA"}
+            >
+              Gerar com IA
+            </button>
+            
             <button className="cta-button" onClick={() => setShowModal(true)}>
               Criar Nova Subtarefa
             </button>
+            
             <button
-              className="cta-button small"
+              className="cta-button"
               onClick={() => navigate('/tarefas')}
-              style={{ marginLeft: '10px' }}
             >
-              ← Voltar para Tarefas
+              Voltar
             </button>
           </div>
         </div>
@@ -167,16 +192,22 @@ const KanbanPage = () => {
             onDragEnd={handleDragEnd}
             collisionDetection={closestCorners}
           >
-            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
+            <div style={{ 
+              display: 'flex', 
+              gap: 16, 
+              flexWrap: 'nowrap', 
+              justifyContent: 'flex-start', 
+              overflowX: 'auto',
+              padding: '16px 8px',
+              background: '#f4f4f4', 
+              borderRadius: '8px'
+            }}>
               {statusList.map((status) => (
                 <ColumnWithAI
                   key={status}
-                  parentTaskId={tarefaId}
                   status={status}
                   tasks={tasksByStatus[status] || []}
                   onDelete={handleDeleteSubtarefa}
-                  onSubtasksCreated={carregarDados} // 8. Atualiza para carregarDados
-                  tarefaNome={tarefaNome} // 9. Passa o nome da tarefa
                 />
               ))}
             </div>
@@ -197,7 +228,7 @@ const KanbanPage = () => {
             <CriarSubtarefaForm
               tarefaId={tarefaId}
               onSubtarefaCriada={() => {
-                carregarDados(); // 10. Atualiza para carregarDados
+                carregarDados(); 
                 setShowModal(false);
               }}
               onClose={() => setShowModal(false)}
@@ -211,6 +242,15 @@ const KanbanPage = () => {
             </button>
           </div>
         </div>
+      )}
+      
+      {showAiModal && (
+        <KanbanAiDialog
+          taskId={tarefaId}
+          onClose={() => setShowAiModal(false)}
+          onConfirm={handleAiConfirm}
+          prompt={tarefaNome}
+        />
       )}
     </>
   );
