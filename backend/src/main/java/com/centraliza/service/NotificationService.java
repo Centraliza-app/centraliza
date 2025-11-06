@@ -24,7 +24,7 @@ public class NotificationService {
 
     // Mantenha a configuração de agendamento que for melhor para você (a cada minuto para testes, ou uma vez por dia para produção)
     //@Scheduled(cron = "0 * * * * *") // Exemplo: a cada minuto para testes
-    @Scheduled(cron = "0 0 1 * * *", zone = "America/Sao_Paulo") código para enviar um email à 1 da manhã
+    @Scheduled(cron = "0 0 1 * * *", zone = "America/Sao_Paulo") // código para enviar um email à 1 da manhã
     public void notifyOverdueTasks() {
         System.out.println("Verificando tarefas atrasadas...");
 
