@@ -31,14 +31,14 @@ const Dashboard = () => {
     taxaAtraso: 0,
     conclusoesNaSemana: 0,
     tempoMedioConclusao: 0,
-    // ATUALIZADO: Estrutura para os 4 quadrantes
     distribuicaoPrioridade: {
       do: 0,
       schedule: 0,
       delegate: 0,
       eliminate: 0
     },
-    horariosProdutivos: Array(24).fill(0)
+    horariosProdutivos: Array(24).fill(0),
+    completionHeatmapData: {}, // NOVO: Estado para o heatmap
   });
 
   const [activeChart, setActiveChart] = useState('doughnut');
@@ -119,7 +119,6 @@ const Dashboard = () => {
         let subtarefasEmExecucao = 0;
         let subtarefasConcluidas = 0;
 
-        // Carrega subtarefas para todas as tarefas e soma os status
         for (const tarefa of tarefasData) {
           try {
             const resSub = await listarSubtarefasPorTarefa(tarefa.id);
@@ -204,10 +203,8 @@ const Dashboard = () => {
           : 0;
 
         // 4. Distribuição por Prioridade (baseado na Matriz de Eisenhower)
-        // ATUALIZAÇÃO: Filtra apenas tarefas não concluídas
         const tarefasPendentes = tarefasData.filter(t => t.status !== 'CONCLUÍDO');
         
-        // ATUALIZAÇÃO: Calcula os 4 quadrantes
         const distribuicaoPrioridade = {
           do: tarefasPendentes.filter(t => t.urgente && t.importante).length,
           schedule: tarefasPendentes.filter(t => !t.urgente && t.importante).length,
@@ -216,23 +213,36 @@ const Dashboard = () => {
         };
 
         // 5. Horários mais produtivos (baseado na dataConclusao)
+        // E NOVO: Dados para o Heatmap de Conclusão
         const horariosProdutivos = Array(24).fill(0);
+        const completionHeatmapData = {};
         
         tarefasConcluidas.forEach(t => {
           if (t.dataConclusao) {
-            const dataConclusao = new Date(t.dataConclusao);
-            const hora = dataConclusao.getHours();
+            // Usa a data de conclusão, tratando como data local
+            const dataConclusao = new Date(t.dataConclusao + 'T00:00:00'); 
+            const hora = dataConclusao.getHours(); // Isto será 0 por causa do T00:00, mas está OK se não tiver a hora
             horariosProdutivos[hora]++;
+            
+            // --- LÓGICA DO HEATMAP ---
+            const dataSimples = t.dataConclusao; // Formato YYYY-MM-DD
+            if (!completionHeatmapData[dataSimples]) {
+              completionHeatmapData[dataSimples] = 0;
+            }
+            completionHeatmapData[dataSimples]++;
+            // --- FIM DA LÓGICA DO HEATMAP ---
           }
         });
+
 
         // Atualizar estados
         setMetricas({
           taxaAtraso,
           conclusoesNaSemana,
-          tempoMedioConclusao,  // já está formatado com toFixed(1)
-          distribuicaoPrioridade, // Objeto atualizado
-          horariosProdutivos
+          tempoMedioConclusao,
+          distribuicaoPrioridade,
+          horariosProdutivos,
+          completionHeatmapData, // Adiciona os dados do heatmap
         });
 
         setDashboardData({
@@ -250,7 +260,7 @@ const Dashboard = () => {
     };
 
     carregarDadosDashboard();
-  }, []); // Dependência 'navigate' removida, pois 'carregarDadosDashboard' não a utiliza
+  }, []); 
 
   if (loading) {
     return <div>Carregando...</div>;
@@ -276,7 +286,6 @@ const Dashboard = () => {
         />
         <UpcomingTasksCard tarefas={dashboardData.upcomingTasks} />
         
-        {/* Taxa de Atraso */}
         <PomodoroMetrics tarefas={tarefas} />
         
         <InfoCard 
@@ -286,22 +295,18 @@ const Dashboard = () => {
           descricao="Porcentagem de tarefas entregues após o prazo"
         />
 
-        {/* Conclusões na Semana */}
         <InfoCard 
           titulo="Conclusões na Semana" 
           valor={metricas.conclusoesNaSemana}
           descricao="Tarefas concluídas nos últimos 7 dias"
         />
 
-        {/* Tempo Médio de Conclusão */}
         <InfoCard 
           titulo="Tempo Médio de Conclusão" 
           valor={`${metricas.tempoMedioConclusao} dias`}
           descricao="Tempo médio para concluir uma tarefa"
         />
 
-        {/* --- ATUALIZAÇÃO AQUI --- */}
-        {/* O Card agora é envolvido por uma div clicável */}
         <ChartCard
           title="Prioridade"
           subtitle="Baseado na Matriz de Eisenhower"
@@ -341,7 +346,6 @@ const Dashboard = () => {
             />
           </div>
         </ChartCard>
-        {/* --- FIM DA ATUALIZAÇÃO --- */}
 
         {/* Horários Mais Produtivos */}
         <ChartCard
@@ -384,7 +388,6 @@ const Dashboard = () => {
             />
           }
         >
-          {/* RENDERIZA O GRÁFICO CORRETO COM BASE NO ESTADO */}
           {activeChart === 'bar' && (
             <Bar data={subtaskChartData} options={barOptions} />
           )}
@@ -393,12 +396,14 @@ const Dashboard = () => {
           )}
         </ChartCard>
 
+        {/* --- CARD DO HEATMAP ATUALIZADO --- */}
         <div className="heatmap-container">
           <ChartCard
-            title="Planejado vs Realizado"
-            subtitle="Status das tarefas com base na data planejada"
+            title="Produtividade (Tarefas Concluídas)"
+            subtitle="Densidade de tarefas concluídas por dia"
           >
-            <DeadlineHeatmap tarefas={tarefas} />
+            {/* Passa os dados processados e não a lista inteira */}
+            <DeadlineHeatmap data={metricas.completionHeatmapData} />
           </ChartCard>
         </div>
       </div>
