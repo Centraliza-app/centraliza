@@ -1,7 +1,6 @@
-// backend/src/main/java/com/centraliza/ai/GeminiService.java
-package com.centraliza.ai;
+package com.centraliza.service;
 
-import com.centraliza.ai.dto.AiSubtask;
+import com.centraliza.dto.AiSubtask;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;

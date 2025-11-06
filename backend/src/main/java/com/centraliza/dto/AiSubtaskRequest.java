@@ -1,4 +1,4 @@
-package com.centraliza.ai.dto;
+package com.centraliza.dto;
 
 public class AiSubtaskRequest {
     private String prompt; 

@@ -1,4 +1,4 @@
-package com.centraliza.ai.dto;
+package com.centraliza.dto;
 
 import java.util.List;
 

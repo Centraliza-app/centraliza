@@ -1,12 +1,16 @@
-package com.centraliza.ai;
+package com.centraliza.controller; 
 
-import com.centraliza.ai.dto.AiSubtaskRequest;
-import com.centraliza.ai.dto.AiSubtaskResponse;
+import com.centraliza.dto.AiSubtaskRequest;
+import com.centraliza.dto.AiSubtaskResponse;
+import com.centraliza.service.GeminiService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/ai")
-@CrossOrigin
+@Tag(name = "IA", description = "Endpoints para geração de conteúdo com IA") // Tag opcionalmente atualizada
+@SecurityRequirement(name = "bearerAuth") // Garante que está protegido
 public class AiSubtaskController {
 
     private final GeminiService gemini;
