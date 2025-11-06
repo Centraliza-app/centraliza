@@ -1,12 +1,11 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { listarSubtarefasPorTarefa, deletarSubtarefa, atualizarSubtarefa } from '../services/apiService';
+import { listarSubtarefasPorTarefa, deletarSubtarefa, atualizarSubtarefa, getTarefa } from '../services/apiService'; // 1. Importar getTarefa
 
 // dnd-kit
 import { DndContext, PointerSensor, useSensor, useSensors, closestCorners, DragOverlay } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 
-// Troca: sai Column “puro”, entra o wrapper com IA
 // import Column from '../components/Column';
 import ColumnWithAI from '../components/ColumnWithAI';
 
@@ -20,6 +19,7 @@ const KanbanPage = () => {
   const navigate = useNavigate();
 
   const [subtarefas, setSubtarefas] = useState([]);
+  const [tarefaNome, setTarefaNome] = useState(''); // 2. Estado para o nome da tarefa
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [activeTask, setActiveTask] = useState(null);
@@ -36,27 +36,41 @@ const KanbanPage = () => {
     return grouped;
   }, [subtarefas]);
 
-  const carregarSubtarefas = React.useCallback(async () => {
+  // 3. Renomeado para carregarDados (plural)
+  const carregarDados = React.useCallback(async () => {
+    setLoading(true);
     try {
-      const res = await listarSubtarefasPorTarefa(tarefaId);
-      setSubtarefas(res.data);
+      // Busca a tarefa principal e as subtarefas em paralelo
+      const [tarefaRes, subtarefasRes] = await Promise.all([
+        getTarefa(tarefaId),
+        listarSubtarefasPorTarefa(tarefaId)
+      ]);
+      
+      setTarefaNome(tarefaRes.data.nome); // 4. Salva o nome da tarefa
+      setSubtarefas(subtarefasRes.data);
+
     } catch (error) {
-      console.error('Erro ao carregar subtarefas:', error);
+      console.error('Erro ao carregar dados do kanban:', error);
+      // Se a tarefa não for encontrada, talvez voltar
+      if (error.response && error.response.status === 404) {
+        alert("Tarefa não encontrada.");
+        navigate('/tarefas');
+      }
     } finally {
       setLoading(false);
     }
-  }, [tarefaId]);
+  }, [tarefaId, navigate]);
 
   useEffect(() => {
-    carregarSubtarefas();
-  }, [tarefaId, carregarSubtarefas]);
+    carregarDados(); // 5. Chama a nova função
+  }, [tarefaId, carregarDados]);
 
   const handleDeleteSubtarefa = async (subtarefaId) => {
     const confirmDelete = window.confirm("Tem certeza que deseja excluir esta subtarefa?");
     if (confirmDelete) {
       try {
         await deletarSubtarefa(tarefaId, subtarefaId);
-        carregarSubtarefas();
+        carregarDados();
       } catch (error) {
         console.error('Erro ao deletar subtarefa:', error);
         alert('Falha ao excluir a subtarefa.');
@@ -105,7 +119,7 @@ const KanbanPage = () => {
       } catch (error) {
         console.error('Erro ao atualizar subtarefa:', error);
         alert('Falha ao mover a subtarefa. Revertendo.');
-        carregarSubtarefas();
+        carregarDados(); // 6. Atualiza para carregarDados
       }
     } else {
       // reordenação dentro da mesma coluna
@@ -128,7 +142,8 @@ const KanbanPage = () => {
     <>
       <div className="tarefas-container">
         <div className="tarefas-header">
-          <h1 className="tarefas-title">Kanban da Tarefa</h1>
+           {/* 7. Mostra o nome da tarefa no título */ }
+          <h1 className="tarefas-title">Kanban: {tarefaNome || '...'}</h1>
           <div>
             <button className="cta-button" onClick={() => setShowModal(true)}>
               Criar Nova Subtarefa
@@ -160,7 +175,8 @@ const KanbanPage = () => {
                   status={status}
                   tasks={tasksByStatus[status] || []}
                   onDelete={handleDeleteSubtarefa}
-                  onSubtasksCreated={carregarSubtarefas}
+                  onSubtasksCreated={carregarDados} // 8. Atualiza para carregarDados
+                  tarefaNome={tarefaNome} // 9. Passa o nome da tarefa
                 />
               ))}
             </div>
@@ -181,7 +197,7 @@ const KanbanPage = () => {
             <CriarSubtarefaForm
               tarefaId={tarefaId}
               onSubtarefaCriada={() => {
-                carregarSubtarefas();
+                carregarDados(); // 10. Atualiza para carregarDados
                 setShowModal(false);
               }}
               onClose={() => setShowModal(false)}

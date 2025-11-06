@@ -1,12 +1,11 @@
-// centraliza-app/centraliza/centraliza-mat-dev/frontend/src/components/ColumnWithAI.jsx
-
 import React, { useState } from "react";
 import Column from "./Column";
 import KanbanAiDialog from "./KanbanAiDialog";
-import { criarSubtarefa } from "../services/apiService"; // ajuste o caminho
+import { criarSubtarefa } from "../services/apiService"; 
 
 export default function ColumnWithAI({
   parentTaskId,   // id da tarefa principal
+  tarefaNome,     // 1. Recebe o nome da tarefa
   status,         
   tasks,
   onDelete,
@@ -17,15 +16,11 @@ export default function ColumnWithAI({
   const handleConfirm = async (items) => {
     for (const it of items) {
       
-      // --- ALTERAÇÃO AQUI ---
-      // O backend espera 'subNome' e 'descricao', mas a IA retorna 'title' e 'description'.
-      // Mapeamos os nomes dos campos aqui antes de enviar para a API.
       await criarSubtarefa(parentTaskId, {
         subNome: it.title,       // <-- MUDANÇA: de 'title' para 'subNome'
         descricao: it.description, // <-- MUDANÇA: de 'description' para 'descricao'
         status: "A FAZER", 
       });
-      // --- FIM DA ALTERAÇÃO ---
 
     }
     setShowAi(false);
@@ -37,7 +32,13 @@ export default function ColumnWithAI({
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <strong>{status}</strong>
         {status === "A FAZER" && (
-          <button onClick={() => setShowAi(true)}>Gerar com IA</button>
+          <button 
+            onClick={() => setShowAi(true)} 
+            disabled={!tarefaNome}
+            title={!tarefaNome ? "Carregando nome da tarefa..." : "Gerar subtarefas com IA"}
+          >
+            Gerar com IA
+          </button>
         )}
       </div>
 
@@ -48,6 +49,7 @@ export default function ColumnWithAI({
           taskId={parentTaskId}
           onClose={() => setShowAi(false)}
           onConfirm={handleConfirm}
+          prompt={tarefaNome}
         />
       )}
     </div>

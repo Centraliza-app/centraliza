@@ -31,7 +31,6 @@ export const login = async (usuario, senha) => {
     const { token, nomeUsuario } = response.data;
     if (token && nomeUsuario) {
       localStorage.setItem('authToken', token);
-      // NOVO: Armazenar o nome do usuário no localStorage
       localStorage.setItem('nomeUsuario', nomeUsuario); 
       return true;
     }
@@ -39,7 +38,6 @@ export const login = async (usuario, senha) => {
   } catch (error) {
     console.error("Erro no login:", error);
     localStorage.removeItem('authToken');
-    // NOVO: Remover também o nome do usuário em caso de erro
     localStorage.removeItem('nomeUsuario'); 
     return false;
   }
@@ -63,11 +61,11 @@ export const registrarUsuario = async (dados) => {
   }
 };
 
-
 /**
  * Funções para interagir com as tarefas.
  */
 export const listarTarefas = () => api.get('/tarefas');
+export const getTarefa = (id) => api.get(`/tarefas/${id}`); // <-- ADICIONADO
 export const criarTarefa = (dados) => api.post('/tarefas', dados);
 export const deletarTarefa = (id) => api.delete(`/tarefas/${id}`);
 export const atualizarTarefa = (id, dados) => api.put(`/tarefas/${id}`, dados);
