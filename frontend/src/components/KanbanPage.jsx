@@ -244,13 +244,26 @@ const KanbanPage = () => {
         </div>
       )}
       
+      {/* ALTERAÇÃO AQUI: Movido o KanbanAiDialog para dentro de uma estrutura de modal */}
       {showAiModal && (
-        <KanbanAiDialog
-          taskId={tarefaId}
-          onClose={() => setShowAiModal(false)}
-          onConfirm={handleAiConfirm}
-          prompt={tarefaNome}
-        />
+        <div className="modal-overlay" onClick={() => setShowAiModal(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h2>Gerar Subtarefas com IA</h2>
+            <KanbanAiDialog
+              taskId={tarefaId}
+              onClose={() => setShowAiModal(false)}
+              onConfirm={handleAiConfirm}
+              prompt={tarefaNome}
+            />
+            <button
+              className="cta-button close-btn"
+              onClick={() => setShowAiModal(false)}
+              style={{ width: '100%', marginTop: '10px' }}
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
       )}
     </>
   );
