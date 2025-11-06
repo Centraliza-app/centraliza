@@ -1,14 +1,22 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { listarSubtarefasPorTarefa, deletarSubtarefa, atualizarSubtarefa } from '../services/apiService';
+// 1. Importar criarSubtarefa e KanbanAiDialog
+import { 
+  listarSubtarefasPorTarefa, 
+  deletarSubtarefa, 
+  atualizarSubtarefa, 
+  getTarefa,
+  criarSubtarefa
+} from '../services/apiService'; 
 
-// Importações do dnd-kit
+// dnd-kit
 import { DndContext, PointerSensor, useSensor, useSensors, closestCorners, DragOverlay } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 
-import Column from '../components/Column';
+import ColumnWithAI from '../components/ColumnWithAI';
 import CriarSubtarefaForm from '../components/CriarSubtarefaForm';
 import SubtarefaCard from '../components/SubtarefaCard';
+import KanbanAiDialog from '../components/KanbanAiDialog';
 
 const statusList = ['A FAZER', 'EM EXECUÇÃO', 'CONCLUÍDO'];
 
@@ -17,10 +25,12 @@ const KanbanPage = () => {
   const navigate = useNavigate();
 
   const [subtarefas, setSubtarefas] = useState([]);
+  const [tarefaNome, setTarefaNome] = useState(''); 
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-
   const [activeTask, setActiveTask] = useState(null);
+  
+  const [showAiModal, setShowAiModal] = useState(false);
 
   const tasksByStatus = useMemo(() => {
     const grouped = {};
@@ -34,41 +44,64 @@ const KanbanPage = () => {
     return grouped;
   }, [subtarefas]);
 
-  const carregarSubtarefas = React.useCallback(async () => {
-      try {
-      const res = await listarSubtarefasPorTarefa(tarefaId);
-      setSubtarefas(res.data);
+  const carregarDados = React.useCallback(async () => {
+    setLoading(true);
+    try {
+      const [tarefaRes, subtarefasRes] = await Promise.all([
+        getTarefa(tarefaId),
+        listarSubtarefasPorTarefa(tarefaId)
+      ]);
+      
+      setTarefaNome(tarefaRes.data.nome); 
+      setSubtarefas(subtarefasRes.data);
+
     } catch (error) {
-      console.error('Erro ao carregar subtarefas:', error);
+      console.error('Erro ao carregar dados do kanban:', error);
+      if (error.response && error.response.status === 404) {
+        alert("Tarefa não encontrada.");
+        navigate('/tarefas');
+      }
     } finally {
       setLoading(false);
-    } 
-  }, [tarefaId]);
+    }
+  }, [tarefaId, navigate]);
 
   useEffect(() => {
-    carregarSubtarefas();
-  }, [tarefaId, carregarSubtarefas]);
+    carregarDados();
+  }, [tarefaId, carregarDados]);
 
   const handleDeleteSubtarefa = async (subtarefaId) => {
     const confirmDelete = window.confirm("Tem certeza que deseja excluir esta subtarefa?");
     if (confirmDelete) {
       try {
         await deletarSubtarefa(tarefaId, subtarefaId);
-        carregarSubtarefas();
+        carregarDados();
       } catch (error) {
         console.error('Erro ao deletar subtarefa:', error);
         alert('Falha ao excluir a subtarefa.');
       }
-    } 
+    }
+  };
+  
+  const handleAiConfirm = async (items) => {
+    try {
+      for (const it of items) {
+        await criarSubtarefa(tarefaId, {
+          subNome: it.title,
+          descricao: it.description,
+          status: "A FAZER", // Sempre cria em "A FAZER"
+        });
+      }
+      setShowAiModal(false);
+      carregarDados(); // Recarrega os dados após criar
+    } catch (error) {
+       console.error('Erro ao criar subtarefas com IA:', error);
+       alert('Ocorreu um erro ao salvar as subtarefas geradas.');
+    }
   };
 
-  // Sensores detectam as ações de arrastar (ponteiro do mouse, toque)
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    })
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
   );
 
   const handleDragStart = (event) => {
@@ -80,86 +113,97 @@ const KanbanPage = () => {
   const handleDragEnd = async (event) => {
     setActiveTask(null);
     const { active, over } = event;
-
-    // Se não soltou sobre uma área válida, retorna
     if (!over) return;
-    
+
     const activeId = active.id;
     const overId = over.id;
-
-    // Se soltou no mesmo lugar, retorna
     if (activeId === overId) return;
 
     const activeContainer = active.data.current.sortable.containerId;
     const overContainer = over.data.current?.sortable?.containerId || over.id;
 
     if (activeContainer !== overContainer) {
-        // Movendo para uma nova coluna
-        const novoStatus = overContainer;
-        const subtarefaArrastada = subtarefas.find(sub => sub.subId === activeId);
+      const novoStatus = overContainer;
+      const subtarefaArrastada = subtarefas.find(sub => sub.subId === activeId);
 
-        // 1. Atualização da UI
-        setSubtarefas(prev =>
-            prev.map(sub =>
-                sub.subId === activeId ? { ...sub, status: novoStatus } : sub
-            )
-        );
+      setSubtarefas(prev =>
+        prev.map(sub =>
+          sub.subId === activeId ? { ...sub, status: novoStatus } : sub
+        )
+      );
 
-        // 2. Chamada à API
-        try {
-            await atualizarSubtarefa(tarefaId, activeId, { ...subtarefaArrastada, status: novoStatus });
-        } catch (error) {
-            console.error('Erro ao atualizar subtarefa:', error);
-            alert('Falha ao mover a subtarefa. Revertendo.');
-            // Reverte em caso de erro
-            carregarSubtarefas();
-        }
+      try {
+        await atualizarSubtarefa(tarefaId, activeId, { ...subtarefaArrastada, status: novoStatus });
+      } catch (error) {
+        console.error('Erro ao atualizar subtarefa:', error);
+        alert('Falha ao mover a subtarefa. Revertendo.');
+        carregarDados(); 
+      }
     } else {
-      // Lógica para reordenar dentro da mesma coluna
       const tasksInContainer = tasksByStatus[activeContainer];
       const oldIndex = tasksInContainer.findIndex(t => t.subId === activeId);
       const newIndex = tasksInContainer.findIndex(t => t.subId === overId);
-      
+
       if (oldIndex !== newIndex) {
         const reorderedTasks = arrayMove(tasksInContainer, oldIndex, newIndex);
         setSubtarefas(prev => [
           ...prev.filter(t => t.status !== activeContainer),
           ...reorderedTasks
         ]);
-        // Aqui você pode querer chamar uma API para salvar a nova ordem
       }
     }
   };
 
-// ...
   return (
     <>
       <div className="tarefas-container">
         <div className="tarefas-header">
-          <h1 className="tarefas-title">Kanban da Tarefa</h1>
-          {/* Botões do cabeçalho */}
-          <div>
+          <h1 className="tarefas-title">Kanban: {tarefaNome || '...'}</h1>
+          
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button 
+              className="cta-button" 
+              onClick={() => setShowAiModal(true)}
+              disabled={!tarefaNome}
+              title={!tarefaNome ? "Carregando nome da tarefa..." : "Gerar subtarefas com IA"}
+            >
+              Gerar com IA
+            </button>
+            
             <button className="cta-button" onClick={() => setShowModal(true)}>
               Criar Nova Subtarefa
             </button>
-            <button className="cta-button small" onClick={() => navigate('/tarefas')} style={{marginLeft: '10px'}}>
-              ← Voltar para Tarefas
+            
+            <button
+              className="cta-button"
+              onClick={() => navigate('/tarefas')}
+            >
+              Voltar
             </button>
           </div>
-        </div> 
+        </div>
 
         {loading ? (
           <p>Carregando subtarefas...</p>
         ) : (
-          <DndContext 
-            sensors={sensors} 
+          <DndContext
+            sensors={sensors}
             onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd} 
+            onDragEnd={handleDragEnd}
             collisionDetection={closestCorners}
           >
-            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
+            <div style={{ 
+              display: 'flex', 
+              gap: 16, 
+              flexWrap: 'nowrap', 
+              justifyContent: 'flex-start', 
+              overflowX: 'auto',
+              padding: '16px 8px',
+              background: '#f4f4f4', 
+              borderRadius: '8px'
+            }}>
               {statusList.map((status) => (
-                <Column
+                <ColumnWithAI
                   key={status}
                   status={status}
                   tasks={tasksByStatus[status] || []}
@@ -167,10 +211,11 @@ const KanbanPage = () => {
                 />
               ))}
             </div>
+
             <DragOverlay>
               {activeTask ? (
                 <SubtarefaCard task={activeTask} onDelete={() => {}} />
-                ) : null}
+              ) : null}
             </DragOverlay>
           </DndContext>
         )}
@@ -183,7 +228,7 @@ const KanbanPage = () => {
             <CriarSubtarefaForm
               tarefaId={tarefaId}
               onSubtarefaCriada={() => {
-                carregarSubtarefas();
+                carregarDados(); 
                 setShowModal(false);
               }}
               onClose={() => setShowModal(false)}
@@ -194,6 +239,28 @@ const KanbanPage = () => {
               style={{ width: '100%', marginTop: '10px' }}
             >
               Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {/* ALTERAÇÃO AQUI: Movido o KanbanAiDialog para dentro de uma estrutura de modal */}
+      {showAiModal && (
+        <div className="modal-overlay" onClick={() => setShowAiModal(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h2>Gerar Subtarefas com IA</h2>
+            <KanbanAiDialog
+              taskId={tarefaId}
+              onClose={() => setShowAiModal(false)}
+              onConfirm={handleAiConfirm}
+              prompt={tarefaNome}
+            />
+            <button
+              className="cta-button close-btn"
+              onClick={() => setShowAiModal(false)}
+              style={{ width: '100%', marginTop: '10px' }}
+            >
+              Fechar
             </button>
           </div>
         </div>

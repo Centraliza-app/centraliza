@@ -20,20 +20,26 @@ const Column = ({ status, tasks, onDelete }) => {
   };
 
   const columnStyle = {
-    flex: 1,
+    flex: 1, 
     background: getBackgroundColor(),
     borderRadius: 8,
     padding: 12,
     minHeight: 300,
-    minWidth: 250,
     boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    overflow: 'hidden' 
   };
 
   return (
     <div ref={setNodeRef} style={columnStyle}>
-        <h3 style={{ textAlign: 'center', marginBottom: 12, paddingBottom: 8, borderBottom: '2px solid #ddd' }}>{status}</h3>
+      <div style={{
+        flexGrow: 1, 
+        overflowY: 'auto', 
+        overflowX: 'hidden',
+        paddingRight: '5px', // Espaço para a scrollbar
+        marginRight: '-5px' // Compensa o padding
+      }}>
         <SortableContext id={status} items={tasks.map(t => t.subId)}>
             {tasks.length > 0 ? (
                 tasks.map(task => (
@@ -43,6 +49,7 @@ const Column = ({ status, tasks, onDelete }) => {
                 <p style={{ color: '#aaa', textAlign: 'center', marginTop: '20px' }}>Sem subtarefas</p>
             )}
         </SortableContext>
+      </div>
     </div>
   );
 };
