@@ -31,10 +31,12 @@ const Dashboard = () => {
     taxaAtraso: 0,
     conclusoesNaSemana: 0,
     tempoMedioConclusao: 0,
+    // ATUALIZADO: Estrutura para os 4 quadrantes
     distribuicaoPrioridade: {
-      baixa: 0,
-      media: 0,
-      alta: 0
+      do: 0,
+      schedule: 0,
+      delegate: 0,
+      eliminate: 0
     },
     horariosProdutivos: Array(24).fill(0)
   });
@@ -202,10 +204,15 @@ const Dashboard = () => {
           : 0;
 
         // 4. Distribuição por Prioridade (baseado na Matriz de Eisenhower)
+        // ATUALIZAÇÃO: Filtra apenas tarefas não concluídas
+        const tarefasPendentes = tarefasData.filter(t => t.status !== 'CONCLUÍDO');
+        
+        // ATUALIZAÇÃO: Calcula os 4 quadrantes
         const distribuicaoPrioridade = {
-          alta: tarefas.filter(t => t.urgente === true).length,  // URGENTE
-          media: tarefas.filter(t => t.urgente === false && t.importante === true).length,  // IMPORTANTE mas não urgente
-          baixa: tarefas.filter(t => t.urgente === false && t.importante === false).length  // Nem urgente nem importante
+          do: tarefasPendentes.filter(t => t.urgente && t.importante).length,
+          schedule: tarefasPendentes.filter(t => !t.urgente && t.importante).length,
+          delegate: tarefasPendentes.filter(t => t.urgente && !t.importante).length,
+          eliminate: tarefasPendentes.filter(t => !t.urgente && !t.importante).length,
         };
 
         // 5. Horários mais produtivos (baseado na dataConclusao)
@@ -224,7 +231,7 @@ const Dashboard = () => {
           taxaAtraso,
           conclusoesNaSemana,
           tempoMedioConclusao,  // já está formatado com toFixed(1)
-          distribuicaoPrioridade,
+          distribuicaoPrioridade, // Objeto atualizado
           horariosProdutivos
         });
 
@@ -243,7 +250,7 @@ const Dashboard = () => {
     };
 
     carregarDadosDashboard();
-  }, []);
+  }, []); // Dependência 'navigate' removida, pois 'carregarDadosDashboard' não a utiliza
 
   if (loading) {
     return <div>Carregando...</div>;
@@ -293,26 +300,48 @@ const Dashboard = () => {
           descricao="Tempo médio para concluir uma tarefa"
         />
 
-        {/* Distribuição por Prioridade */}
+        {/* --- ATUALIZAÇÃO AQUI --- */}
+        {/* O Card agora é envolvido por uma div clicável */}
         <ChartCard
-          title="Distribuição por Prioridade"
+          title="Prioridade"
           subtitle="Baseado na Matriz de Eisenhower"
         >
-          <Doughnut 
-            data={{
-              labels: ['Urgente', 'Importante', 'Normal'],
-              datasets: [{
-                data: [
-                  metricas.distribuicaoPrioridade.alta,
-                  metricas.distribuicaoPrioridade.media,
-                  metricas.distribuicaoPrioridade.baixa
+          <div
+            onClick={() => navigate('/matriz-eisenhower')}
+            style={{ cursor: 'pointer', height: '100%', width: '100%' }}
+            title="Ir para a Matriz de Eisenhower"
+          >
+            <Doughnut 
+              data={{
+                labels: [
+                  'Faça Agora', 
+                  'Agende', 
+                  'Delegue', 
+                  'Elimine'
                 ],
-                backgroundColor: ['#dc3545', '#ffc107', '#28a745']
-              }]
-            }}
-            options={doughnutOptions}
-          />
+                datasets: [{
+                  data: [
+                    metricas.distribuicaoPrioridade.do,
+                    metricas.distribuicaoPrioridade.schedule,
+                    metricas.distribuicaoPrioridade.delegate,
+                    metricas.distribuicaoPrioridade.eliminate
+                  ],
+                  backgroundColor: [
+                    '#dc3545', // Vermelho (Faça)
+                    '#007bff', // Azul (Agende)
+                    '#ffc107', // Amarelo (Delegue)
+                    '#6c757d'  // Cinza (Elimine)
+                  ]
+                }]
+              }}
+              options={{
+                ...doughnutOptions,
+                onClick: (e) => navigate('/matriz-eisenhower'),
+              }}
+            />
+          </div>
         </ChartCard>
+        {/* --- FIM DA ATUALIZAÇÃO --- */}
 
         {/* Horários Mais Produtivos */}
         <ChartCard
