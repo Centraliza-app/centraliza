@@ -1,16 +1,21 @@
-import React, { useState } from 'react';
+import React from 'react'; // Removido o useState
 import { Link, useNavigate } from 'react-router-dom';
-// ALTERADO: Importado o ícone LayoutGrid para a nova página.
 import { ListTodo, Timer, CalendarDays, LogOut, HomeIcon, LayoutGrid, User } from 'lucide-react';
 import './SideBar-style.css'; 
 
-const Sidebar = ({ isAuthenticated, onLogout }) => {
-  const [isOpen, setIsOpen] = useState(false);
+// Recebe 'isOpen' e 'onClose' como propriedades
+const Sidebar = ({ isAuthenticated, isOpen, onClose, onLogout }) => {
   const navigate = useNavigate();
 
   const handleLogoutClick = () => {
     onLogout();
-    navigate('/'); // Redireciona para a página inicial após o logout
+    onClose(); // Fecha o menu ao fazer logout
+    navigate('/'); 
+  };
+
+  // Função para fechar o menu ao clicar em um link
+  const handleLinkClick = () => {
+    onClose();
   };
 
   const navItems = [
@@ -24,7 +29,7 @@ const Sidebar = ({ isAuthenticated, onLogout }) => {
 
   return (
     <>
-      {/* Botão de abrir/fechar sidebar para mobile */}
+      {/* O container da sidebar agora é controlado pelo 'isOpen' vindo do pai */}
       <aside
         className={`sidebar-container ${isOpen ? 'is-open' : ''}`}
       >
@@ -33,7 +38,7 @@ const Sidebar = ({ isAuthenticated, onLogout }) => {
             Centraliza
           </Link>
           <button
-            onClick={() => setIsOpen(false)}
+            onClick={onClose} // Usa a função 'onClose'
             className="sidebar-close-button"
           >
             &times;
@@ -47,7 +52,7 @@ const Sidebar = ({ isAuthenticated, onLogout }) => {
                   <li key={item.name} className="sidebar-nav-item">
                     <Link
                       to={item.path}
-                      onClick={() => setIsOpen(false)}
+                      onClick={handleLinkClick} // Fecha o menu ao navegar
                       className="sidebar-nav-link"
                     >
                       <item.icon size={20} />
@@ -62,7 +67,7 @@ const Sidebar = ({ isAuthenticated, onLogout }) => {
         </nav>
         <div className="sidebar-footer">
         <button
-            onClick={handleLogoutClick} // Esta função agora redireciona
+            onClick={handleLogoutClick} 
             className="sidebar-logout-button"
         >
             <LogOut size={20} />
